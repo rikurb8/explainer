@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { build } from "./build.mjs";
-import { createVideoRun, parseVideo, renderVideo, storyboard, timestamp } from "./video.mjs";
+import { createVideoRun, parseVideo, renderVideo, storyboard, synthesize, timestamp } from "./video.mjs";
 
 const source = "---\ntitle: Demo\n---\n# First\n\nA **visual**.\n\n:::narration\nFirst sentence.\n\nSecond sentence.\n:::\n";
 
@@ -129,6 +129,42 @@ test("renderer records preflight failures rather than losing the run", (t) => {
 	assert.equal(manifest.status, "failed");
 	assert.match(manifest.error, /Chrome not found|uses macOS/);
 	assert.equal(manifest.sourceSha256, manifest.artifacts[0].sha256);
+});
+
+test("tts configuration defaults to say and accepts provider overrides", () => {
+	assert.deepEqual(parseVideo(source).tts, { provider: "say", model: "voxtral-mini-tts-3-0", voice: "Samantha", rate: 155 });
+	const mistral = parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: mistral\ntts-voice: voice_478"));
+	assert.equal(mistral.tts.provider, "mistral");
+	assert.equal(mistral.tts.voice, "voice_478");
+	assert.throws(() => parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: aws")), /unknown provider/);
+});
+
+test("mistral provider posts a request, decodes audio, and keeps the API key out of command arguments", (t) => {
+	const root = mkdtempSync(path.join(tmpdir(), "video-mistral-test-"));
+	t.after(() => rmSync(root, { recursive: true, force: true }));
+	const calls = [];
+	const run = (cmd, args) => {
+		calls.push({ cmd, args, files: Object.fromEntries(args.filter((a) => a.startsWith("@")).map((a) => [a.slice(1), readFileSync(a.slice(1), "utf8")])) });
+		return JSON.stringify({ audio_data: Buffer.from("fake audio").toString("base64") });
+	};
+	const previous = process.env.MISTRAL_API_KEY;
+	process.env.MISTRAL_API_KEY = "sk-test-key";
+	try {
+		const audio = path.join(root, "000.wav");
+		synthesize(run, { provider: "mistral", model: "voxtral-mini-tts-3-0", voice: "voice_478" }, "Hello.", audio);
+		assert.equal(readFileSync(audio, "utf8"), "fake audio");
+		assert.equal(calls[0].cmd, "curl");
+		assert.ok(!JSON.stringify(calls[0].args).includes("sk-test-key"));
+		const request = JSON.parse(Object.values(calls[0].files).find((f) => f.startsWith("{")));
+		assert.deepEqual(request, { model: "voxtral-mini-tts-3-0", input: "Hello.", voice_id: "voice_478", response_format: "wav" });
+		assert.ok(Object.values(calls[0].files).some((f) => f.includes("sk-test-key")));
+		delete process.env.MISTRAL_API_KEY;
+		assert.throws(() => synthesize(run, { provider: "mistral" }, "Hello.", audio), /MISTRAL_API_KEY/);
+	} finally {
+		if (previous === undefined) delete process.env.MISTRAL_API_KEY;
+		else process.env.MISTRAL_API_KEY = previous;
+	}
+	assert.ok(!existsSync(path.join(root, ".mistral-auth.txt")));
 });
 
 test("existing book template still builds", () => {

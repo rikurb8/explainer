@@ -11,6 +11,14 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 export function parseVideo(source) {
 	const { meta, body } = frontMatter(source.replace(/\r\n/g, "\n"));
+	const provider = meta["tts-provider"] ?? "say";
+	if (!["say", "mistral"].includes(provider)) throw new Error(`tts-provider: unknown provider "${provider}"`);
+	const tts = {
+		provider,
+		model: meta["tts-model"] ?? "voxtral-mini-tts-3-0",
+		voice: meta["tts-voice"] ?? (provider === "mistral" ? "gb_jane_neutral" : "Samantha"),
+		rate: Number(meta["tts-rate"] ?? 155),
+	};
 	const scenes = sections(body).map((scene) => {
 		const narration = [...scene.text.matchAll(/^:::narration\s*\n([\s\S]*?)^:::\s*$/gm)];
 		if (narration.length !== 1) throw new Error(`${scene.title}: expected one :::narration block`);
@@ -21,7 +29,31 @@ export function parseVideo(source) {
 		return { title: scene.title, beats, html: new Book().blocks(visual) };
 	});
 	if (!scenes.length) throw new Error("video needs at least one # scene");
-	return { title: meta.title ?? "Explainer", scenes };
+	return { title: meta.title ?? "Explainer", scenes, tts };
+}
+
+// Narration beats are capped at 240 characters, comfortably under cloud speech prompt limits.
+export function synthesize(run, tts, text, audioPath) {
+	if (tts.provider === "mistral") {
+		const apiKey = process.env.MISTRAL_API_KEY;
+		if (!apiKey) throw new Error("Set MISTRAL_API_KEY to use the mistral tts-provider.");
+		const dir = path.dirname(audioPath);
+		const payload = path.join(dir, ".mistral-request.json"), auth = path.join(dir, ".mistral-auth.txt");
+		writeFileSync(payload, JSON.stringify({ model: tts.model, input: text, voice_id: tts.voice, response_format: "wav" }));
+		// The key goes through a header file because trace.jsonl records command arguments.
+		writeFileSync(auth, `Authorization: Bearer ${apiKey}\n`);
+		try {
+			const body = run("curl", ["-sS", "-f", "--max-time", "120", "https://api.mistral.ai/v1/audio/speech", "-H", `@${auth}`, "-H", "Content-Type: application/json", "-d", `@${payload}`]);
+			const audio = Buffer.from(JSON.parse(body).audio_data ?? "", "base64");
+			if (!audio.length) throw new Error("mistral speech response contained no audio");
+			writeFileSync(audioPath, audio);
+		} finally {
+			rmSync(payload, { force: true });
+			rmSync(auth, { force: true });
+		}
+		return;
+	}
+	run("say", ["-v", tts.voice, "-r", String(tts.rate), "-o", audioPath, text]);
 }
 
 export function timestamp(seconds) {
@@ -121,6 +153,7 @@ export function createVideoRun(output, { source, input, title }) {
 export function renderVideo(input, output) {
 	const source = readFileSync(input, "utf8");
 	const video = parseVideo(source);
+	const tts = video.tts;
 	// Author-supplied Markdown supports raw HTML, like books: render trusted sources only.
 	const chrome = process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 	if (existsSync(output)) throw new Error(`Output directory already exists: ${output}`);
@@ -133,29 +166,33 @@ export function renderVideo(input, output) {
 	const captions = ["WEBVTT\n"];
 	let elapsed = 0;
 	try {
-		manifest.settings = { voice: "Samantha", wordsPerMinute: 155, width: 1280, height: 720, fps: 30, pauseSeconds: 0.35 };
+		manifest.settings = { tts, width: 1280, height: 720, fps: 30, pauseSeconds: 0.35 };
 		manifest.renderer = Object.fromEntries(["video.mjs", "book.css", "lib/render.mjs", "lib/diagrams.mjs", "lib/highlight.mjs", "package-lock.json"].map((file) => [file, sha256(readFileSync(path.join(HERE, file)))]));
 		archive.save();
-		if (process.platform !== "darwin") throw new Error("This prototype uses macOS say for speech.");
+		if (tts.provider === "say" && process.platform !== "darwin") throw new Error("The say tts-provider needs macOS; use tts-provider: mistral.");
 		if (!existsSync(chrome)) throw new Error("Chrome not found; set CHROME_PATH to its executable.");
 		for (const tool of ["ffmpeg", "ffprobe"]) manifest.tools[tool] = run(tool, ["-version"]).split("\n")[0];
 		manifest.tools.chrome = run(chrome, ["--version"]).trim();
-		if (!run("say", ["-v", "?"]).includes("Samantha")) throw new Error("Install the Samantha voice in macOS Speech settings.");
-		manifest.tools.macos = run("sw_vers", ["-productVersion"]).trim();
+		if (tts.provider === "say") {
+			if (!run("say", ["-v", "?"]).includes(tts.voice)) throw new Error(`Install the ${tts.voice} voice in macOS Speech settings.`);
+			manifest.tools.macos = run("sw_vers", ["-productVersion"]).trim();
+		} else {
+			manifest.tools.curl = run("curl", ["--version"]).split("\n")[0];
+		}
 		work = mkdtempSync(path.join(output, ".render-"));
 		writeFileSync(html, storyboard(video));
 		archive.save();
 		for (const [sceneIndex, scene] of video.scenes.entries()) {
 			for (const [beatIndex, narration] of scene.beats.entries()) {
 				const id = String(clips.length).padStart(3, "0");
-				const assets = { audio: `assets/${id}.aiff`, frame: `assets/${id}.png`, narration: `assets/${id}.txt` };
+				const assets = { audio: `assets/${id}.${tts.provider === "mistral" ? "wav" : "aiff"}`, frame: `assets/${id}.png`, narration: `assets/${id}.txt` };
 				const beat = { id, sceneIndex, beatIndex, title: scene.title, narration, startSeconds: elapsed, status: "running", assets };
 				manifest.beats.push(beat);
 				archive.save();
 				const audio = path.join(output, assets.audio), png = path.join(output, assets.frame), clip = path.join(work, `${id}.mp4`);
 				const text = path.join(output, assets.narration);
 				writeFileSync(text, narration);
-				run("say", ["-v", "Samantha", "-r", "155", "-f", text, "-o", audio]);
+				synthesize(run, tts, narration, audio);
 				const duration = Number(run("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", audio]).trim());
 				if (!Number.isFinite(duration) || duration <= 0) throw new Error("Speech produced no audio");
 				// Round to whole video frames so concatenation and subtitle timing stay aligned.

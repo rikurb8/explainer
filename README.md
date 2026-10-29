@@ -36,7 +36,8 @@ pi-durable survives a crash: the reference for prose style and structure.
 Build a narrated video about this repository, entirely locally on macOS:
 
 ```sh
-# Requires macOS's Samantha voice, Google Chrome, ffmpeg and ffprobe on PATH.
+# Requires Google Chrome, ffmpeg and ffprobe on PATH. Default speech is macOS's Samantha voice;
+# set MISTRAL_API_KEY to use Mistral cloud TTS instead (see Speech providers below).
 RUN="runs/$(date +%Y%m%d-%H%M%S)"
 node video.mjs examples/video/explainer.md -o "$RUN"
 open "$RUN/video.mp4"
@@ -47,6 +48,25 @@ The output directory must not already exist. Outputs: a 1280×720 H.264/AAC `vid
 track, separate `captions.vtt`, and a `storyboard.html` for reviewing the visuals. Captions are also visible in
 the video. No API keys, paid services, or new npm dependencies are needed. Set `CHROME_PATH` if Chrome is elsewhere.
 The existing book and walkthrough builders are unchanged.
+
+### Speech providers
+
+Speech is configured with flat front-matter keys; the default is fully local:
+
+```markdown
+---
+title: My video
+tts-provider: mistral     # say (default) or mistral
+tts-model: voxtral-mini-tts-3-0
+tts-voice: voice_478      # say: an installed macOS voice; mistral: a preset slug or saved voice ID
+tts-rate: 155             # say only: words per minute
+---
+```
+
+- `say` (default): macOS `say`, offline, no key needed. Voice defaults to Samantha at 155 wpm.
+- `mistral`: Mistral's Voxtral TTS (`POST /v1/audio/speech`), requires `MISTRAL_API_KEY` in the environment.
+  Defaults to model `voxtral-mini-tts-3-0` and voice `gb_jane_neutral`. This sends narration text to Mistral's
+  API — unlike the rest of the pipeline it is not offline, so avoid private content in narration.
 
 ### Run archives
 
@@ -99,15 +119,17 @@ Another paragraph advances the diagram and updates the caption.
 :::
 ```
 
-Each narration paragraph is a beat (maximum 240 characters; keep it shorter for readable captions). The local
-Samantha voice speaks at 155 words per minute. Diagrams marked `animate` reveal groups evenly across those beats;
-this is stepped scene animation, not word-level synchronization or full-motion video. Use short visuals that fit
-one slide. `storyboard.html?scene=0&beat=0` previews a specific zero-indexed beat.
+Each narration paragraph is a beat (maximum 240 characters; keep it shorter for readable captions). Speech runs
+at the configured provider's pace (155 words per minute with the default say voice). Diagrams marked `animate`
+reveal groups evenly across those beats; this is stepped scene animation, not word-level synchronization or
+full-motion video. Use short visuals that fit one slide. `storyboard.html?scene=0&beat=0` previews a specific
+zero-indexed beat.
 
-Only render trusted Markdown: as with books, raw HTML and scripts are supported and run in Chrome. Audio and
-captions are synthesized locally. Review factual claims, visual fit, speech pronunciation and timing before sharing.
-Source research and script writing are author/agent tasks, not automatic behavior of this CLI. This first version
-does not support non-macOS speech, cloud voices, music, avatars, or precise cue timing.
+Only render trusted Markdown: as with books, raw HTML and scripts are supported and run in Chrome. Captions are
+synthesized locally; speech comes from the configured provider (local `say` by default, Mistral cloud TTS when
+selected — see Speech providers). Review factual claims, visual fit, speech pronunciation and timing before
+sharing. Source research and script writing are author/agent tasks, not automatic behavior of this CLI. This
+first version does not support music, sound effects, avatars, or precise cue timing.
 
 ## Layout
 
