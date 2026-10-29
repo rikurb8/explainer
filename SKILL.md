@@ -1,6 +1,6 @@
 ---
 name: explainer
-description: Write explainers (design docs, API guides, system walkthroughs, investigations, call summaries, "how does X work" write-ups) as a book-style HTML page built from Markdown, with a fixed layout, typography, prose style, diagrams and animations; or an interactive walkthrough, a single HTML page in which an embedded agent tutors the reader one concept at a time. Use whenever the user asks for an explainer, design book, guide, long-form explanation document, walkthrough or tutorial.
+description: Write explainers (design docs, API guides, system walkthroughs, investigations, call summaries, "how does X work" write-ups) as a book-style HTML page built from Markdown, with a fixed layout, typography, prose style, diagrams and animations; or an interactive walkthrough, a single HTML page in which an embedded agent tutors the reader one concept at a time; or a fast-paced narrated video from a Markdown storyboard. Use whenever the user asks for an explainer, design book, guide, long-form explanation document, walkthrough, tutorial, or a video/demo script.
 ---
 
 # Explainer
@@ -14,6 +14,8 @@ Files in this skill directory (resolve paths against it):
   README (`pi-durable-README.md`): `book.md` (built: `index.html`) and `walkthrough.md` (built: `walkthrough.html`).
   Read `book.md` before writing a book and `walkthrough.md` before writing a walkthrough.
 - `template.md`: a complete example using every feature (syntax reference).
+- `video.mjs`: the narrated-video CLI (`node <skill>/video.mjs storyboard.md --check` or `-o <dir>`). Scripts:
+  `examples/video/fireship.md` (fast style) and `examples/video/explainer.md` (relaxed).
 - `book.css`: the design. Do not edit per book.
 - `lib/diagrams.mjs`, `lib/highlight.mjs`: diagram DSLs and code highlighting (used by the build).
 - `walkthrough/`: the prebuilt runtime of walkthrough pages (`dist/runtime.js`) and its sources. See "Walkthroughs" below.
@@ -146,6 +148,45 @@ When the book teaches users to build with an API rather than explaining a design
 4. Build: `node <skill>/build.mjs book.md -o index.html`. Fix any build error (it names the directive or line).
 5. Check visually if browser tools are available: open the HTML, look at the cover and every figure for overlapping or clipped text, and click through steppers. Fix layouts in the DSL (fewer boxes per row, shorter labels, reorder rows).
 6. Publish or share only if the user asks.
+
+## Video scripts
+
+A narrated video is a storyboard: `video.mjs` turns it into speech, one frame per beat, and a 1280×720 MP4. The
+storyboard *is* the screenplay — there is no separate script file and no compile step. One `# scene` is one shot
+(one visual change); one narration paragraph is one beat (one cut).
+
+Write the script before the visuals, in this order:
+
+1. Hook: the one sentence that says what changes for the viewer. One shot, under 12 words.
+2. Beats: one line per shot, 4–12 words, one idea each. A line that needs a comma usually needs two shots.
+3. Visuals: only for shots where a diagram, code sample or number carries the point. Everything else is a
+   `:::flash` word card (two or three short lines, screen-filling type).
+4. Last shot: what the viewer does with it. No call to action beyond that.
+
+Pace over everything: 12 shots/min is the floor for a fast video, 20+ reads as brisk. Set `pause: 0.1` and
+`tts-rate: 175` in the front matter, `visual: 1.2` to fill the frame, and check before rendering:
+
+```sh
+node <skill>/video.mjs script.md --check          # shots, beats, words, length, rhythm, warnings
+node <skill>/video.mjs script.md -o runs/$(date +%Y%m%d-%H%M%S)
+node <skill>/video.mjs runs/<run> --inspect        # per beat: measured speech, outliers, hold share
+```
+
+A render writes `preview.html` into its run directory and rewrites it after every beat, so open it in a browser
+(refresh is automatic) instead of watching the terminal. After the render, `--inspect` is the sensor: it shows
+which beats spoke far slower than the run's median — those are the lines to split. Do not trust the `--check`
+length beyond about a fifth of itself; only the render knows.
+
+Rhythm is not the same as pace: a video whose shots are all the same length has no rhythm however fast it cuts.
+Write in runs, then break them — short lines for a burst, then `:::narration hold=1.4` on the one line that is the
+punchline so the shot sits in silence. `--check` prints the shot lengths as a bar with mean, standard deviation and
+cv; aim for cv 0.4–0.6 and at least one shot twice the mean. Motion does the rest on its own: cards cut hard, code
+holds still, slides snap in.
+
+`--check` is the only cheap feedback: rendering synthesizes every beat and encodes every clip. `examples/video/fireship.md`
+is a 40-second, 12-shot script in that style; `examples/video/chilies.md` is the relaxed 9-second-per-shot version.
+Speech is local `say` by default (macOS); `tts-provider: mistral` sends narration to Mistral's API. Review every
+claim, the pronunciation and the visual fit — this tool writes nothing, it only assembles.
 
 ## Walkthroughs
 

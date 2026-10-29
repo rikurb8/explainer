@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { build } from "./build.mjs";
-import { createVideoRun, parseVideo, renderVideo, storyboard, synthesize, timestamp } from "./video.mjs";
+import { createVideoRun, inspectRun, motion, paceReport, parseVideo, previewRun, renderVideo, storyboard, synthesize, timestamp } from "./video.mjs";
 
 const source = "---\ntitle: Demo\n---\n# First\n\nA **visual**.\n\n:::narration\nFirst sentence.\n\nSecond sentence.\n:::\n";
 
@@ -31,6 +31,60 @@ test("timestamps handle rounding across minute and hour boundaries", () => {
 	assert.equal(timestamp(0), "00:00:00.000");
 	assert.equal(timestamp(59.9996), "00:01:00.000");
 	assert.equal(timestamp(3600.125), "01:00:00.125");
+});
+
+test("motion filter snaps in 6% over 12 frames and then holds", () => {
+	const filter = motion(8), frames = Math.round(8 * 30);
+	assert.match(filter, new RegExp(`d=${frames}:s=1280x720:fps=30`));
+	assert.match(filter, /fade=t=in:st=0:d=0\.12/);
+	const [settle, from, slope] = filter.match(/if\(lt\(on,(\d+)\),(\d+\.\d+)-on\*(\d+\.\d+),1\)/).slice(1).map(Number);
+	assert.equal(settle, 12);
+	assert.ok(Math.abs(from - settle * slope - 1) < 0.0001, "settles at 100% after the snap");
+	// A beat shorter than the snap cannot burn all twelve frames on it.
+	assert.match(motion(0.3), /if\(lt\(on,9\),/);
+});
+
+test("word cards render as big words and lose the caption line", () => {
+	const video = parseVideo(source.replace("A **visual**.", ':::flash\nCut it\nShort\n:::').replace("First sentence.", "Cut it short."));
+	assert.equal(video.scenes[0].flash, true);
+	assert.match(video.scenes[0].html, /<div class="flash"><b>Cut it<\/b><b>Short<\/b><\/div>/);
+	assert.doesNotMatch(storyboard(video), /class="caption"/);
+	assert.match(storyboard(parseVideo(source)), /class="caption"/);
+	assert.throws(() => parseVideo(source.replace("A **visual**.", ':::flash\n:::')), /flash needs at least one line/);
+});
+
+test("pace report counts shots, not beats, and shows the rhythm", () => {
+	const script = (hold) => `---\npause: 0.1\n---\n# A\nV\n:::narration${hold}\nOne two three four.\n:::\n# B\n:::flash\nBig\n:::\n:::narration\nFive.\n:::\n`;
+	const even = paceReport(parseVideo(script("")));
+	assert.match(even, /2 shots, 2 beats, 5 words/);
+	assert.match(even, /1 word cards/);
+	assert.match(even, /rhythm [▁▂▃▄▅▆▇█]{2}  mean \d+\.\ds/);
+	assert.doesNotMatch(even, /several beats|over 12 words/);
+	// A hold only lands on the scene's last beat, so it lengthens the shot the viewer sits on.
+	const held = paceReport(parseVideo(script(" hold=1.2")));
+	const seconds = (report) => Number(report.match(/about (\d+)s/)[1]);
+	assert.ok(seconds(held) - seconds(even) >= 1, "the hold adds about itself to the runtime");
+	assert.match(held, /longest\/shortest \d+\.\d/);
+	// Two beats behind one visual are one shot, which is what the viewer sees.
+	const shared = paceReport(parseVideo(source));
+	assert.match(shared, /1 shots, 2 beats/);
+	assert.match(shared, /1 scenes hold several beats/);
+	assert.throws(() => parseVideo("---\npause: 99\n---\n# A\nV\n:::narration\nHi.\n:::\n"), /pause must be 0–3/);
+	assert.throws(() => parseVideo(source.replace(":::narration", ":::narration hold=9")), /hold=0–3/);
+	assert.throws(() => parseVideo(source.replace(":::narration", ":::narration fast")), /hold=0–3/);
+});
+
+test("motion kinds: slides snap, cards cut, code sits still", () => {
+	assert.match(motion(4, "snap"), /zoompan=z='if\(lt\(on,\d+\),1\.06-on\*/);
+	assert.match(motion(4, "snap"), /fade=t=in:st=0:d=0\.12/);
+	assert.match(motion(4, "cut"), /zoompan=z='1'/);
+	assert.match(motion(4, "cut"), /fade=t=in/);
+	assert.match(motion(4, "still"), /zoompan=z='1'/);
+	assert.doesNotMatch(motion(4, "still"), /fade/);
+	const kinds = (visual) => parseVideo(source.replace("A **visual**.", visual)).scenes[0].kind;
+	assert.equal(kinds(':::flash\nWord\n:::'), "cut");
+	assert.equal(kinds("```js\ncode();\n```"), "still");
+	assert.equal(kinds("Plain text."), "snap");
 });
 
 test("storyboard safely embeds spoken text and reuses diagram rendering", () => {
@@ -132,10 +186,12 @@ test("renderer records preflight failures rather than losing the run", (t) => {
 });
 
 test("tts configuration defaults to say and accepts provider overrides", () => {
-	assert.deepEqual(parseVideo(source).tts, { provider: "say", model: "voxtral-mini-tts-3-0", voice: "Samantha", rate: 155 });
-	const mistral = parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: mistral\ntts-voice: voice_478"));
+	assert.deepEqual(parseVideo(source).tts, { provider: "say", model: "voxtral-mini-tts-3-0", voice: "Samantha", rate: 155, speed: 1 });
+	const mistral = parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: mistral\ntts-voice: voice_478\ntts-speed: 1.4"));
 	assert.equal(mistral.tts.provider, "mistral");
 	assert.equal(mistral.tts.voice, "voice_478");
+	assert.equal(mistral.tts.speed, 1.4);
+	assert.throws(() => parseVideo(source.replace("title: Demo", "title: Demo\ntts-speed: 4")), /tts-speed must be 0.5–2/);
 	assert.throws(() => parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: aws")), /unknown provider/);
 });
 
@@ -154,6 +210,7 @@ test("mistral provider posts a request, decodes audio, and keeps the API key out
 		synthesize(run, { provider: "mistral", model: "voxtral-mini-tts-3-0", voice: "voice_478" }, "Hello.", audio);
 		assert.equal(readFileSync(audio, "utf8"), "fake audio");
 		assert.equal(calls[0].cmd, "curl");
+		assert.ok(calls[0].args.includes("--retry"), "one transient 5xx must not end the run");
 		assert.ok(!JSON.stringify(calls[0].args).includes("sk-test-key"));
 		const request = JSON.parse(Object.values(calls[0].files).find((f) => f.startsWith("{")));
 		assert.deepEqual(request, { model: "voxtral-mini-tts-3-0", input: "Hello.", voice_id: "voice_478", response_format: "wav" });
@@ -165,6 +222,64 @@ test("mistral provider posts a request, decodes audio, and keeps the API key out
 		else process.env.MISTRAL_API_KEY = previous;
 	}
 	assert.ok(!existsSync(path.join(root, ".mistral-auth.txt")));
+});
+
+test("every checkpoint writes a self-refreshing preview of the run", (t) => {
+	const root = mkdtempSync(path.join(tmpdir(), "video-preview-test-"));
+	t.after(() => rmSync(root, { recursive: true, force: true }));
+	const run = path.join(root, "run");
+	const archive = createVideoRun(run, { source, input: "demo.md", title: "Demo" });
+	archive.manifest.beats.push({ id: "000", title: "First", narration: "First sentence.", hold: 0.1, kind: "cut", status: "running", assets: { frame: "assets/000.png" } });
+	archive.save();
+	const html = readFileSync(path.join(run, "preview.html"), "utf8");
+	// Status text is asserted without its markup, so the design can change freely.
+	const text = (page) => page.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+	assert.match(html, /<meta http-equiv="refresh" content="2">/);
+	assert.match(text(html), /running · live, refreshing every 2s · 0\/1 beats/);
+	assert.match(html, /First sentence\./);
+	// A frame that has not been captured yet is a broken image, not a placeholder.
+	assert.doesNotMatch(html, /<img/);
+	assert.doesNotMatch(html, /<video/);
+	writeFileSync(path.join(run, "assets", "000.png"), "fake png");
+	writeFileSync(path.join(run, "video.mp4"), "fake video");
+	archive.manifest.beats[0].status = "completed";
+	writeFileSync(path.join(run, "preview.html"), previewRun(run, archive.manifest));
+	const done = readFileSync(path.join(run, "preview.html"), "utf8");
+	assert.match(done, /<img src="assets\/000.png"/);
+	assert.match(done, /<video src="video.mp4"/);
+	// A finished run must stop refreshing, or the player is rebuilt before it can play.
+	archive.manifest.status = "completed";
+	archive.manifest.finishedAt = new Date(Date.parse(archive.manifest.startedAt) + 4200).toISOString();
+	writeFileSync(path.join(run, "preview.html"), previewRun(run, archive.manifest));
+	const finished = readFileSync(path.join(run, "preview.html"), "utf8");
+	assert.doesNotMatch(finished, /http-equiv="refresh"/);
+	assert.match(text(finished), /completed · 1\/1 beats/);
+	assert.match(text(finished), /s render/);
+});
+
+test("inspect reports measured speech, not a formula's drift", (t) => {
+	const root = mkdtempSync(path.join(tmpdir(), "video-inspect-test-"));
+	t.after(() => rmSync(root, { recursive: true, force: true }));
+	const run = path.join(root, "run");
+	const archive = createVideoRun(run, { source, input: "demo.md", title: "Demo" });
+	// Ten words in 8s against five in 2s: the first speaks at half the rate of the run's median.
+	archive.manifest.beats.push(
+		{ id: "000", title: "First", narration: "one two three four five six seven eight nine ten", hold: 0.1, kind: "cut", status: "completed", audioSeconds: 8, durationSeconds: 8.1, assets: {} },
+		{ id: "001", title: "Second", narration: "one two three four five", hold: 0.1, kind: "cut", status: "completed", audioSeconds: 2, durationSeconds: 2.1, assets: {} },
+	);
+	archive.manifest.durationSeconds = 10.2;
+	archive.save();
+	const report = inspectRun(run);
+	assert.match(report, /2 beats · 10\.2s video/);
+	assert.match(report, /say · measured 2\.50 words\/s · estimated 2\.58 for --check/);
+	assert.match(report, /000\s+10\s+8\.0\s+1\.25\s+-\d+%/);
+	assert.match(report, /holds 0\.2s \(2% of runtime\) · estimate \d+s vs 10s rendered/);
+	assert.match(report, /000 spoke at 1\.25 words\/s, -50% against the run/);
+	assert.doesNotMatch(report, /001 spoke at/);
+	// A slow short line is lead-in and commas, not a line with words to move.
+	archive.manifest.beats[1].audioSeconds = 4;
+	archive.save();
+	assert.doesNotMatch(inspectRun(run), /001 spoke at/);
 });
 
 test("existing book template still builds", () => {
