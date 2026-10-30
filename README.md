@@ -210,6 +210,35 @@ when no key is set — see Speech providers). Review factual claims, visual fit,
 sharing, and remember the default voice sends narration text to Mistral. Source research and script writing are author/agent tasks, not automatic behavior of this CLI. This
 first version does not support music, sound effects, avatars, or precise cue timing.
 
+## Music clips
+
+`music.mjs` asks a local [ACE-Step 1.5](https://github.com/ace-step/ACE-Step-1.5) API for one instrumental
+clip, saves the MP3, and never overwrites an existing file:
+
+```sh
+node music.mjs "Warm lo-fi hip-hop, mellow felt piano, soft vinyl crackle, no vocals" -o lofi.mp3 --duration 30
+```
+
+The prompt is the music description: genre, instruments, mood and production. Duration is 10–600 seconds
+(default 30). Pass `--lyrics "[Verse]\n..."` for vocals. It returns the absolute path of the downloaded file.
+The client polls the job until it finishes, fails on timeouts and server errors, removes partial downloads,
+and never sends the API key to a URL the server did not originate.
+
+ACE-Step runs separately (Python 3.11, models are downloaded on first use):
+
+```sh
+cd ACE-Step-1.5
+HF_HUB_DISABLE_XET=1 ACESTEP_INIT_LLM=false ACESTEP_NO_INIT=false ACESTEP_API_KEY=my-key \
+  uv run --no-sync acestep-api --host 127.0.0.1 --port 8001
+```
+
+Then set `ACESTEP_API_KEY=my-key` for the client (omit it if the server has none) and point
+`ACESTEP_BASE_URL` at the server if it is not `http://127.0.0.1:8001`.
+
+This covers music, including instrumentals. It does not generate speech or sound effects. Verified on Apple
+Silicon: a 15-second lo-fi request returned a 240 KB, 48 kHz stereo MP3 in about six seconds; `ffmpeg` decoded
+it completely. Generation quality and speed depend on the model and hardware.
+
 ## Review and revise
 
 Ask the explainer skill to review code or critique a video, for example:
