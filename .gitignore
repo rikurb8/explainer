@@ -1,6 +1,9 @@
 node_modules/
 walkthrough/node_modules/
 example.html
-docs/
+docs/run-browser-plan/
+docs/node_modules/
+docs/dist/
+docs/.astro/
 runs/
 examples/picture-book/video/

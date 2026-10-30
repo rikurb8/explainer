@@ -1,0 +1,23 @@
+---
+title: Live playground
+description: Edit Markdown, diagrams, and steppers using Explainer's actual renderer.
+tableOfContents: false
+---
+import Playground from "../../components/Playground.astro";
+
+Edit the example and watch the output update. Try changing the flow labels, clicking
+Replay, or advancing the stepper. Download your edits before leaving this page.
+
+<Playground />
+
+## What runs here
+
+This uses `Book.blocks()` from `lib/render.mjs` and the real `book.css`, not a mock renderer.
+It previews **content fragments**: Markdown, directives, diagrams, and steppers.
+Book front matter and chapter layout belong to the [book builder](../books/).
+
+The preview is a sandboxed iframe without access to the docs page's origin or storage.
+External resources are blocked by its content security policy. Raw HTML is supported;
+only paste content you trust. This is not a sandbox for arbitrary hostile programs.
+
+It does not run terminal commands, call speech providers, or render videos.

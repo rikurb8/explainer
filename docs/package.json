@@ -1,0 +1,16 @@
+{
+  "name": "explainer-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.42.8",
+    "@astrojs/markdown-remark": "^7.3.0",
+    "astro": "7.4.4"
+  }
+}

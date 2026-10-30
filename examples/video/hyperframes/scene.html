@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280, height=720">
+<title>What survives a crash</title>
+<script src="assets/gsap.min.js"></script>
+<style>
+:root{--paper:#fbf8f2;--ink:#282621;--muted:#69655c;--rust:#9c432b;--blue:#285d78;--rule:#c8c1b5}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,sans-serif}
+#film{position:relative;width:1280px;height:720px;overflow:hidden;padding:48px 64px}
+.kicker{font-size:19px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+h1{font:54px/1.1 Georgia,serif;letter-spacing:-1.5px;margin:15px 0 24px}
+#diagram{position:absolute;left:64px;top:190px;width:1152px;height:310px;overflow:visible}
+.panel{fill:var(--paper);stroke:var(--rule);stroke-width:2}.blue{fill:var(--blue)}.rust{fill:var(--rust)}
+.label{font:22px Arial,sans-serif;fill:var(--ink)}.small{font:19px Arial,sans-serif;fill:var(--muted)}
+.mono{font:20px Menlo,monospace;fill:var(--ink)}.wire{fill:none;stroke:var(--rule);stroke-width:2}
+#memory,#record,#request,#commit,#replay,#reply,#crash,#fresh,#retried,#done{opacity:0}
+#phases{position:absolute;left:64px;right:64px;top:510px;display:flex;justify-content:space-between;border-top:1px solid var(--rule);padding-top:18px;color:var(--muted);font-size:19px}
+.phase{opacity:.45}.caption{position:absolute;left:64px;right:64px;top:568px;margin:0;font:25px/1.4 Georgia,serif}
+.footnote{position:absolute;left:64px;right:64px;bottom:20px;font-size:19px;color:var(--muted)}
+#progress{position:absolute;bottom:0;left:0;width:1280px;height:4px;background:var(--rust);transform-origin:left}
+</style>
+</head>
+<body>
+<main id="film" data-composition-id="durability" data-start="0" data-duration="__DURATION__" data-width="1280" data-height="720" data-fps="30">
+<div class="kicker">Explainer / motion proof</div>
+<h1>What survives a crash</h1>
+<svg id="diagram" viewBox="0 0 1152 310" role="img" aria-label="A request is committed to a durable log, survives a server crash, and is recovered before a client retry.">
+  <path class="wire" d="M230 135H456 M696 135H922"/>
+  <rect class="panel" x="0" y="36" width="230" height="220" rx="8"/>
+  <text class="label" x="24" y="76">Client</text>
+  <text class="small" x="24" y="108">request ID: r42</text>
+  <text class="mono" x="24" y="159">write x = 7</text>
+  <text id="waiting" class="small" x="24" y="218">waiting for reply</text>
+  <text id="retried" class="small" x="24" y="218">retry: same ID r42</text>
+  <text id="done" class="small" x="24" y="218">acknowledged</text>
+  <rect class="panel" x="456" y="36" width="240" height="220" rx="8" stroke-dasharray="6 5"/>
+  <g id="server">
+    <rect class="panel" x="456" y="36" width="240" height="220" rx="8"/>
+    <text class="label" x="480" y="76">Server</text>
+    <text class="small" x="480" y="108">volatile memory</text>
+    <g id="memory"><rect x="480" y="134" width="192" height="48" rx="4" fill="#e5edf1"/><text class="mono" x="498" y="165">x = 7</text></g>
+    <text id="fresh" class="small" x="480" y="218">replacement process</text>
+  </g>
+  <text id="crash" x="492" y="163" class="label" style="fill:var(--rust)">CRASHED</text>
+  <rect class="panel" x="922" y="36" width="230" height="220" rx="8"/>
+  <text class="label" x="946" y="76">Durable log</text>
+  <text class="small" x="946" y="108">outside the process</text>
+  <g id="record"><rect x="940" y="134" width="194" height="48" rx="4" fill="#eee1d8"/><text class="mono" x="951" y="165">r42: x = 7</text><text class="small" x="946" y="218">committed</text></g>
+  <g id="request"><circle cx="260" cy="135" r="9" class="blue"/><text x="265" y="111" class="small">r42</text></g>
+  <g id="commit"><circle cx="720" cy="135" r="9" class="rust"/></g>
+  <g id="replay"><circle cx="900" cy="135" r="9" class="rust"/><text x="760" y="15" class="small">replay</text></g>
+  <g id="reply"><circle cx="430" cy="135" r="9" class="blue"/><text x="320" y="111" class="small">OK · r42</text></g>
+</svg>
+<div id="phases"><span class="phase" id="phase-0">01 Request</span><span class="phase" id="phase-1">02 Commit</span><span class="phase" id="phase-2">03 Crash</span><span class="phase" id="phase-3">04 Restart</span><span class="phase" id="phase-4">05 Replay</span><span class="phase" id="phase-5">06 Retry / reply</span></div>
+__MEDIA__
+<div class="footnote">Illustrative protocol: durable writes + request-ID deduplication.<br>Process crash only; not a live execution.</div>
+<div id="progress"></div>
+</main>
+<script>
+const beats = __TIMING__;
+const tl = gsap.timeline({paused:true});
+// Cues are fractions of measured beats, so speech edits retime the same scene.
+const at = (i, fraction=0) => beats[i].start + beats[i].actionDuration * fraction;
+const span = (i, fraction) => beats[i].actionDuration * fraction;
+beats.forEach((b,i) => {
+  tl.fromTo('#phase-'+i, {opacity:.45}, {opacity:1,duration:.15}, b.start);
+  if (i < beats.length-1) tl.to('#phase-'+i, {opacity:.45,duration:.15}, at(i+1));
+});
+tl.fromTo('#progress',{scaleX:0},{scaleX:1,duration:__DURATION__,ease:'none'},0);
+// Keep the request identity and the three places on screen throughout the film.
+tl.fromTo('#request',{opacity:0,x:0},{opacity:1,x:0,duration:.1},at(0,.12));
+tl.fromTo('#request',{x:0},{x:170,duration:span(0,.38),ease:'power2.inOut'},at(0,.18));
+tl.to('#request',{opacity:0,duration:.15},at(0,.6));
+tl.fromTo('#memory',{opacity:0},{opacity:1,duration:.25},at(0,.63));
+tl.fromTo('#commit',{opacity:0,x:0},{opacity:1,x:0,duration:.1},at(1,.15));
+tl.fromTo('#commit',{x:0},{x:180,duration:span(1,.4),ease:'power2.inOut'},at(1,.2));
+tl.to('#commit',{opacity:0,duration:.1},at(1,.62));
+tl.fromTo('#record',{opacity:0},{opacity:1,duration:.25},at(1,.65));
+tl.to('#server',{opacity:0,duration:.18},at(2,.22));
+tl.to('#memory',{opacity:0,duration:.01},at(2,.23));
+tl.fromTo('#crash',{opacity:0},{opacity:1,duration:.15},at(2,.27));
+tl.to('#crash',{opacity:0,duration:.15},at(3,.15));
+tl.to('#server',{opacity:1,duration:.3},at(3,.22));
+tl.fromTo('#fresh',{opacity:0},{opacity:1,duration:.2},at(3,.3));
+tl.fromTo('#replay',{opacity:0,x:0},{opacity:1,x:0,duration:.1},at(4,.08));
+tl.fromTo('#replay',{x:0},{x:-180,duration:span(4,.4),ease:'power2.inOut'},at(4,.14));
+tl.to('#replay',{opacity:0,duration:.1},at(4,.56));
+tl.to('#memory',{opacity:1,duration:.25},at(4,.6));
+tl.to('#waiting',{opacity:0,duration:.1},at(5));
+tl.fromTo('#retried',{opacity:0},{opacity:1,duration:.1},at(5));
+tl.fromTo('#request',{opacity:0,x:0},{opacity:1,x:0,duration:.1},at(5,.04));
+tl.fromTo('#request',{x:0},{x:170,duration:span(5,.24),ease:'power2.inOut'},at(5,.08));
+tl.to('#request',{opacity:0,duration:.1},at(5,.34));
+tl.fromTo('#reply',{opacity:0,x:0},{opacity:1,x:0,duration:.1},at(5,.55));
+tl.fromTo('#reply',{x:0},{x:-170,duration:span(5,.22),ease:'power2.inOut'},at(5,.58));
+tl.to('#reply',{opacity:0,duration:.1},at(5,.82));
+tl.to('#retried',{opacity:0,duration:.1},at(5,.84));
+tl.fromTo('#done',{opacity:0},{opacity:1,duration:.15},at(5,.86));
+window.__timelines = {durability:tl};
+</script>
+</body>
+</html>

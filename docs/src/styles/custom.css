@@ -1,0 +1,13 @@
+:root {
+  --sl-color-accent-low: #301b16;
+  --sl-color-accent: #d47c60;
+  --sl-color-accent-high: #f5d2c6;
+  --sl-font: "Avenir Next", system-ui, sans-serif;
+}
+:root[data-theme="light"] {
+  --sl-color-accent-low: #fbece5;
+  --sl-color-accent: #a33e27;
+  --sl-color-accent-high: #542419;
+}
+.hero h1 { letter-spacing: -.04em; }
+:root:has([data-playground]) { --sl-content-width: 80rem; }

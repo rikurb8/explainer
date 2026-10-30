@@ -1,12 +1,14 @@
 # explainer
 
-A [pi](https://github.com/earendil-works/pi) skill that turns Markdown into two kinds of single-file HTML pages:
+A [pi](https://github.com/earendil-works/pi) skill that turns Markdown into books, interactive walkthroughs, and narrated videos:
 
 - **Books**: long-form explainers (design docs, API guides, investigations) with a fixed book layout, typography,
   animated sequence and flow diagrams, steppers and notes.
 - **Walkthroughs**: an interactive tutor in one HTML page. An agent (pi-durable and pi-ai, running in the browser)
   teaches a topic one concept at a time from bundled sources, draws figures on the fly, asks check questions and
   tracks progress. The reader signs in with an API key (or OAuth where the provider allows it) and chats.
+- **Videos**: rehearse a Markdown storyboard, synthesize narration, render a captioned MP4, and optionally run
+  a bounded review/revision loop with a per-pass report.
 
 100% slop: written by an agent, lightly supervised. Use at your own risk.
 
@@ -20,6 +22,24 @@ cd ~/.pi/agent/skills/explainer && npm install --ignore-scripts
 pi picks the skill up from `~/.pi/agent/skills`. Ask it for an explainer, guide or walkthrough, or follow
 [`SKILL.md`](SKILL.md) yourself.
 
+## Live documentation
+
+The Astro + Starlight site in [`docs/`](docs/) has task-based guides and an editable Markdown/diagram playground
+using the actual renderer. Most pages are Markdown; interactive pages use MDX and Astro components.
+Node.js 22.23.4 or newer is required for the docs site.
+
+```sh
+npm --prefix docs ci --ignore-scripts
+npm run docs:dev                  # live editing and browser preview
+npm run docs:test                 # sample rendering and safety checks
+npm run docs:build                # static site in docs/dist, including search
+npm --prefix docs run preview     # preview the production build
+```
+
+Edit `docs/src/content/docs/` for prose and `examples/playground.md` for the live example.
+The playground previews content fragments; terminal commands, speech, and video encoding stay local.
+No deployment is configured. The source guide is [`docs/src/content/docs/getting-started.md`](docs/src/content/docs/getting-started.md).
+
 ## Use
 
 ```sh
@@ -30,10 +50,11 @@ cd <repo> && node <skill>/build.mjs walkthrough.md -o walkthrough.html   # a wal
 [`SKILL.md`](SKILL.md) documents the format; [`template.md`](template.md) shows every book feature.
 [`examples/durable/`](examples/durable) has a sample book and a sample walkthrough (with their built HTML) on how
 pi-durable survives a crash: the reference for prose style and structure.
+[`examples/picture-book/`](examples/picture-book) shows an illustrated book and narrated reel sharing the same SVG sources.
 
 ## Narrated video prototype
 
-Build a narrated video about this repository, entirely locally on macOS:
+Build a narrated video about this repository on macOS (default speech calls Mistral; choose `say` for offline narration):
 
 ```sh
 # Requires Google Chrome, ffmpeg and ffprobe on PATH. Speech is Mistral's Voxtral by default; set MISTRAL_API_KEY,
@@ -218,8 +239,19 @@ The [review workflow](review/review.md) returns evidence-backed findings and pri
 video notes use timestamps and scene/beat IDs where available. It distinguishes audiovisual inspection from
 transcript-and-frame sampling and leaves artifacts unchanged unless a revision was requested.
 
+For a controlled video loop with separate reviewer and author agents:
+
+```sh
+node loop.mjs storyboard.md -o runs/my-loop --passes 2 --pause
+```
+
+Open `runs/my-loop/report.html` for per-pass reviews, video, and clickable frame evidence.
+The original storyboard is copied, never edited. Requires pi with model access and the video toolchain;
+each pass can incur speech and agent costs. See the [loop guide](docs/src/content/docs/review-loop.md).
+
 ## Layout
 
+- `docs/`: the Astro + Starlight documentation site and sandboxed live playground.
 - `build.mjs`: the book and walkthrough CLI.
 - `video.mjs`: the local narrated-video CLI; `examples/video/explainer.md` is the sample storyboard.
 - `review/`: the review workflow, code review guidance, and video critique lens.

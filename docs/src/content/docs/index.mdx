@@ -1,0 +1,40 @@
+---
+title: Explain it. Build it. Try it.
+description: Make books, interactive tutors, and narrated videos from Markdown.
+template: splash
+hero:
+  tagline: One Markdown source. A book to read, a tutor to talk to, or a video to watch.
+  actions:
+    - text: Get started
+      link: ./getting-started/
+      icon: right-arrow
+    - text: Try the live editor
+      link: ./playground/
+      variant: secondary
+---
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+<CardGrid>
+  <Card title="Books" icon="open-book">
+    Single-file HTML with typography, flow and sequence diagrams, animations, and steppers.
+    [Build a book](./books/)
+  </Card>
+  <Card title="Walkthroughs" icon="comment">
+    A browser-based tutor that teaches from bundled sources and checks understanding.
+    [Make a walkthrough](./walkthroughs/)
+  </Card>
+  <Card title="Narrated videos" icon="movie">
+    Rehearse a Markdown storyboard, synthesize speech, and render an MP4 with captions.
+    [Render a video](./videos/)
+  </Card>
+  <Card title="Review and revise" icon="approve-check">
+    Separate reviewer and author agents, bounded passes, and a report with video evidence.
+    [Run a review loop](./review-loop/)
+  </Card>
+</CardGrid>
+
+## Documentation you can use
+
+The [playground](./playground/) runs the real Markdown and diagram renderer in your browser.
+The guides explain which work stays local and which work calls a model provider.
+To change these pages, edit Markdown or MDX and use Astro's live preview.

@@ -1,0 +1,71 @@
+---
+import sample from "../../../examples/playground.md?raw";
+---
+<div class="playground" data-playground>
+  <div class="toolbar">
+    <span>Markdown → live preview</span>
+    <button type="button" data-reset>Reset example</button>
+    <button type="button" data-download>Download Markdown</button>
+  </div>
+  <div class="panes">
+    <label>Source
+      <textarea data-source spellcheck="false" aria-describedby="playground-help">{sample}</textarea>
+    </label>
+    <div>
+      <span class="preview-label">Preview</span>
+      <iframe data-preview title="Rendered Markdown preview" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
+    </div>
+  </div>
+  <p data-error role="status" aria-live="polite"></p>
+  <p id="playground-help">Edits stay in this page until you download them. Invalid Markdown keeps the last valid preview.</p>
+</div>
+
+<script>
+  import css from "../../../book.css?raw";
+  import { previewDocument } from "../lib/preview.mjs";
+
+  const root = document.querySelector<HTMLElement>("[data-playground]")!;
+  const source = root.querySelector<HTMLTextAreaElement>("[data-source]")!;
+  const preview = root.querySelector<HTMLIFrameElement>("[data-preview]")!;
+  const error = root.querySelector<HTMLElement>("[data-error]")!;
+  const initial = source.value;
+  function render() {
+    try {
+      const html = previewDocument(source.value, css);
+      preview.srcdoc = html;
+      error.textContent = "";
+    } catch (e) {
+      error.textContent = e instanceof Error ? e.message : String(e);
+    }
+  }
+  source.addEventListener("input", render);
+  root.querySelector("[data-reset]")!.addEventListener("click", () => {
+    source.value = initial;
+    render();
+  });
+  root.querySelector("[data-download]")!.addEventListener("click", () => {
+    const url = URL.createObjectURL(new Blob([source.value], { type: "text/markdown" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "example.md";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  render();
+</script>
+
+<style>
+  .playground { border: 1px solid var(--sl-color-gray-5); border-radius: .75rem; overflow: hidden; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; padding: 1rem; background: var(--sl-color-gray-6); }
+  .toolbar span { flex: 1; font-weight: 600; }
+  button { margin: 0; cursor: pointer; padding: .4rem .7rem; border: 1px solid var(--sl-color-gray-4); border-radius: .3rem; background: var(--sl-color-bg); color: var(--sl-color-text); }
+  .panes { display: grid; grid-template-columns: 1fr 1fr; }
+  .panes > * { min-width: 0; margin: 0; }
+  label, .preview-label { display: block; padding: .75rem; font-weight: 600; }
+  textarea { display: block; margin-top: .75rem; width: 100%; height: 34rem; resize: vertical; border: 1px solid var(--sl-color-gray-4); border-radius: .3rem; padding: 1rem; background: var(--sl-color-bg); color: var(--sl-color-text); font: 400 .85rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; tab-size: 2; }
+  iframe { display: block; width: 100%; height: 36rem; border: 0; background: #fbf8f2; }
+  p { margin: .75rem 1rem; font-size: .85rem; }
+  [data-error]:empty { display: none; }
+  [data-error] { color: var(--sl-color-red-high); }
+  @media (max-width: 60rem) { .panes { grid-template-columns: 1fr; } textarea { height: 22rem; } }
+</style>
