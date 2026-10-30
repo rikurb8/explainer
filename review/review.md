@@ -48,3 +48,11 @@ On a requested revision loop:
 4. Reviewer inspects the new artifact: mark previous IDs resolved, partial, or still open, with fresh evidence; add newly introduced issues.
 
 The reviewer supplies feedback, not silent rewrites. Stop after the requested pass or pass count; another iteration requires authorization. A “ready” verdict is bounded by the stated coverage, not a claim of perfection.
+
+For videos, `../loop.mjs` runs this loop under script control, with the reviewer and the author as separate `pi -p` processes (the reviewer cannot edit, the author cannot render):
+
+```sh
+node <skill>/loop.mjs storyboard.md -o runs/loop-$(date +%Y%m%d-%H%M%S) --passes 3 [--pause] [--review-model M] [--revise-model M]
+```
+
+Each `pass-N/` holds `storyboard.md`, `run/` (the render), `frames/` (one encoded frame per beat midpoint), `review.md`, `review.log`, and, from pass 2, `changes.md` and `revise.log`. `loop.json` records every step and the final pass. Open `report.html` in the loop directory to read the reviews: a tab per pass with the verdict, finding badges, the video (timestamps in findings seek it), clickable beat frames and the author's changes. It is rewritten after every step and refreshes itself while the loop runs; `node <skill>/loop.mjs <loop-dir> --report` regenerates it. It stops at the pass count, or earlier on a `ready`, `blocked` or unparseable verdict. `--passes` must be a positive safe integer. `--pause` waits before each revision: Enter revises, typed text is passed to the author as director notes that override the review, `q` stops. The report stops refreshing while paused so playback is uninterrupted; reload it after resuming. Failures are recorded in `loop.json` and the report before the command exits with an error. The input storyboard is copied, never edited. Each pass synthesizes speech again (Voxtral sends narration to Mistral).

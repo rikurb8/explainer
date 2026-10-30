@@ -14,6 +14,7 @@ Files in this skill directory (resolve paths against it):
   README (`pi-durable-README.md`): `book.md` (built: `index.html`) and `walkthrough.md` (built: `walkthrough.html`).
   Read `book.md` before writing a book and `walkthrough.md` before writing a walkthrough.
 - `template.md`: a complete example using every feature (syntax reference).
+- `loop.mjs`: the controlled render → review → revise loop for videos (see Review).
 - `video.mjs`: the narrated-video CLI (`node <skill>/video.mjs storyboard.md --check` or `-o <dir>`). Scripts:
   `examples/video/fireship.md` (fast style) and `examples/video/explainer.md` (relaxed).
 - `book.css`: the design. Do not edit per book.
@@ -161,7 +162,8 @@ When the book teaches users to build with an API rather than explaining a design
 For code review, video/storyboard critique, or a requested create → review → revise loop, read
 [review/review.md](review/review.md) and follow its process and report format instead of the creation process above.
 Video feedback covers clarity, entertainment, pacing, and audiovisual execution, with timestamped changes for the
-next revision. Review-only requests leave the subject unchanged; revision loops run only for the requested passes.
+next revision. Review-only requests leave the subject unchanged; revision loops run only for the requested passes. For a video
+loop, run `node <skill>/loop.mjs storyboard.md -o runs/loop-<stamp> --passes N [--pause]` (details in review.md).
 
 ## Video scripts
 
