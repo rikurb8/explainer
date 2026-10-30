@@ -3,10 +3,11 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSy
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { flow } from "./lib/diagrams.mjs";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { build } from "./build.mjs";
-import { createVideoRun, inspectRun, motion, paceReport, parseVideo, previewRun, renderVideo, storyboard, synthesize, timestamp } from "./video.mjs";
+import { createVideoRun, inspectRun, motion, paceReport, parseVideo, previewRun, renderVideo, resolveTts, storyboard, synthesize, timestamp } from "./video.mjs";
 
 const source = "---\ntitle: Demo\n---\n# First\n\nA **visual**.\n\n:::narration\nFirst sentence.\n\nSecond sentence.\n:::\n";
 
@@ -104,18 +105,18 @@ test("scene selection updates captions and reveals flow destinations with their 
 		classList: { contains: () => i === 1 || i === 3 },
 	}));
 	const caption = {};
-	const scene = { querySelector: () => caption, querySelectorAll: () => [{ querySelectorAll: () => steps }] };
-	let removed = false;
+	const scene = { style: {}, querySelector: () => caption, querySelectorAll: () => [{ querySelectorAll: () => steps }] };
+	const other = { style: {} };
 	const html = storyboard({ title: "Test", scenes: [{ title: "One", html: "Visual", beats: ["First", "Second", "Third"] }] });
 	const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 	runInNewContext(script, {
 		URLSearchParams,
 		location: { search: "?scene=0&beat=0" },
-		document: { querySelectorAll: () => [scene, { remove() { removed = true; } }] },
+		document: { querySelectorAll: () => [scene, other] },
 	});
 	assert.equal(caption.textContent, "First");
-	assert.equal(removed, true);
-	assert.equal(steps[2].style.opacity, undefined);
+	assert.equal(other.style.display, "none");
+	assert.equal(steps[2].style.opacity, "");
 	assert.equal(steps[3].style.opacity, "0");
 	assert.equal(steps[4].style.opacity, "0");
 });
@@ -185,14 +186,31 @@ test("renderer records preflight failures rather than losing the run", (t) => {
 	assert.equal(manifest.sourceSha256, manifest.artifacts[0].sha256);
 });
 
-test("tts configuration defaults to say and accepts provider overrides", () => {
-	assert.deepEqual(parseVideo(source).tts, { provider: "say", model: "voxtral-mini-tts-3-0", voice: "Samantha", rate: 155, speed: 1 });
-	const mistral = parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: mistral\ntts-voice: voice_478\ntts-speed: 1.4"));
+test("tts configuration defaults to voxtral and accepts provider overrides", () => {
+	assert.deepEqual(parseVideo(source).tts, { provider: "mistral", model: "voxtral-mini-tts-3-0", voice: "gb_jane_neutral", rate: 155, speed: 1 });
+	const local = parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: say"));
+	assert.equal(local.tts.provider, "say");
+	assert.equal(local.tts.voice, "Samantha");
+	const mistral = parseVideo(source.replace("title: Demo", "title: Demo\ntts-voice: voice_478\ntts-speed: 1.4"));
 	assert.equal(mistral.tts.provider, "mistral");
 	assert.equal(mistral.tts.voice, "voice_478");
 	assert.equal(mistral.tts.speed, 1.4);
 	assert.throws(() => parseVideo(source.replace("title: Demo", "title: Demo\ntts-speed: 4")), /tts-speed must be 0.5–2/);
 	assert.throws(() => parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: aws")), /unknown provider/);
+});
+
+test("voxtral needs a key; a Mac without one falls back to the local say voice", () => {
+	const keyed = { MISTRAL_API_KEY: "sk-test" }, voxtral = parseVideo(source).tts;
+	assert.deepEqual(resolveTts(voxtral, keyed, "linux"), voxtral);
+	const fallback = resolveTts(voxtral, {}, "darwin");
+	assert.equal(fallback.provider, "say");
+	assert.equal(fallback.voice, "Samantha");
+	assert.equal(fallback.speed, voxtral.speed);
+	assert.equal(voxtral.provider, "mistral", "the declared voice is not mutated");
+	assert.throws(() => resolveTts(voxtral, {}, "linux"), /Set MISTRAL_API_KEY/);
+	const local = parseVideo(source.replace("title: Demo", "title: Demo\ntts-provider: say")).tts;
+	assert.deepEqual(resolveTts(local, {}, "darwin"), local);
+	assert.throws(() => resolveTts(local, keyed, "linux"), /needs macOS/);
 });
 
 test("mistral provider posts a request, decodes audio, and keeps the API key out of command arguments", (t) => {
@@ -262,6 +280,8 @@ test("inspect reports measured speech, not a formula's drift", (t) => {
 	t.after(() => rmSync(root, { recursive: true, force: true }));
 	const run = path.join(root, "run");
 	const archive = createVideoRun(run, { source, input: "demo.md", title: "Demo" });
+	// A run that fell back to say records the voice that actually spoke, which is what --inspect must report.
+	archive.manifest.settings = { tts: { provider: "say", voice: "Samantha", rate: 155, speed: 1 } };
 	// Ten words in 8s against five in 2s: the first speaks at half the rate of the run's median.
 	archive.manifest.beats.push(
 		{ id: "000", title: "First", narration: "one two three four five six seven eight nine ten", hold: 0.1, kind: "cut", status: "completed", audioSeconds: 8, durationSeconds: 8.1, assets: {} },
@@ -280,6 +300,66 @@ test("inspect reports measured speech, not a formula's drift", (t) => {
 	archive.manifest.beats[1].audioSeconds = 4;
 	archive.save();
 	assert.doesNotMatch(inspectRun(run), /001 spoke at/);
+});
+
+// Every coordinate in a path is a number pair: the centreline including the elbow control points.
+const segments = (d) => {
+	const n = d.match(/-?[\d.]+/g).map(Number), points = [];
+	for (let i = 0; i + 1 < n.length; i += 2) points.push([n[i], n[i + 1]]);
+	return points;
+};
+
+test("flow routes between rows with elbows, one lane per direction, and a pulse on every arrow", () => {
+	const html = flow("row \"a\"\nbox a \"Source\"\nbox b \"Sink\"\nrow \"b\"\nbox c \"Store\"\narrow a -> c \"write\"\narrow c -> a \"read\"", { id: "t", label: "test", animate: true });
+	const arrows = [...html.matchAll(/<path class="pulse" d="([^"]+)"/g)].map((m) => m[1]);
+	assert.equal(arrows.length, 2);
+	for (const d of arrows) {
+		assert.match(d, /Q/, "corners are rounded, not mitred");
+		// Every straight run is axis-aligned: an elbow, never a diagonal through the boxes it passes.
+		const points = segments(d);
+		for (let i = 1; i < points.length; i++) assert.ok(points[i][0] === points[i - 1][0] || points[i][1] === points[i - 1][1], `diagonal segment in ${d}`);
+	}
+	// Opposite directions share one gap, so each gets its own lane instead of overlapping.
+	const lanes = arrows.map((d) => segments(d).find((p, i, all) => i > 0 && p[0] !== all[i - 1][0])[1]);
+	assert.equal(new Set(lanes).size, 2, `lanes ${lanes}`);
+	assert.match(html, /<path d="[^"]+"[^>]*marker-end="url\(#tm\)"\/>\s*<path class="pulse"/, "the pulse sits inside the revealed arrow group");
+	assert.doesNotMatch(flow("box a \"A\"\narrow a -> a", { id: "t", label: "test" }), /class="pulse"/, "a still figure has no pulse");
+	// Aligned columns still get a straight run down, with no lane to cross.
+	const straight = flow("row \"a\"\nbox a \"A\"\nrow \"b\"\nbox b \"B\"\narrow a -> b", { id: "t", label: "test", animate: true }).match(/<path class="pulse" d="([^"]+)"/)[1];
+	assert.equal(new Set(segments(straight).map((p) => p[0])).size, 1);
+});
+
+test("wide horizontal return-arrow labels stay separate and inside the SVG", () => {
+	const html = flow('box a "A"\nbox b "B"\narrow a -> b "request"\narrow b -> a "response"', { id: "t", label: "test" });
+	const [top, height] = html.match(/<rect x="[^"]+" y="([^"]+)" width="[^"]+" height="([^"]+)" rx=/).slice(1).map(Number);
+	const labels = [...html.matchAll(/<text x="[^"]+" y="([^"]+)"[^>]*>(?:request|response)<\/text>/g)].map(m => Number(m[1]));
+	assert.equal(labels.length, 2);
+	assert.ok(labels[0] >= 10, "the upper label's background stays inside the SVG");
+	assert.ok(labels[0] + 3 < top, "request stays above the boxes");
+	assert.ok(labels[1] - 10 > top + height, "response stays below the boxes");
+	const svgHeight = Number(html.match(/viewBox="0 0 720 ([^"]+)"/)[1]);
+	assert.ok(labels[1] + 3 <= svgHeight, "the lower label stays inside the SVG");
+});
+
+test("aligned return arrows use separate columns and label sides", () => {
+	const html = flow('row\nbox a "A"\nrow\nbox b "B"\narrow a -> b "write"\narrow b -> a "read"', { id: "t", label: "test", animate: true });
+	const columns = [...html.matchAll(/<path class="pulse" d="([^"]+)"/g)].map(m => segments(m[1])[0][0]);
+	assert.equal(columns.length, 2);
+	assert.ok(columns[0] < columns[1], "down and up use different sides of the column centre");
+	const labels = [...html.matchAll(/<text x="([^"]+)"[^>]*text-anchor="([^"]+)"[^>]*>(write|read)<\/text>/g)];
+	assert.equal(labels.length, 2);
+	assert.ok(Number(labels[0][1]) < columns[0]);
+	assert.equal(labels[0][2], "end");
+	assert.ok(Number(labels[1][1]) > columns[1]);
+	assert.equal(labels[1][2], "start");
+});
+
+test("aligned upward arrow labels stay in the gap between rows", () => {
+	const html = flow('row\nbox a "A"\nrow\nbox b "B"\narrow b -> a "read"', { id: "t", label: "test" });
+	const boxes = [...html.matchAll(/<rect x="[^"]+" y="([^"]+)" width="[^"]+" height="([^"]+)" rx=/g)];
+	const labelY = Number(html.match(/<text x="[^"]+" y="([^"]+)"[^>]*>read<\/text>/)[1]);
+	assert.ok(labelY - 10 > Number(boxes[0][1]) + Number(boxes[0][2]));
+	assert.ok(labelY + 3 < Number(boxes[1][1]), "label and background stay above the source box");
 });
 
 test("existing book template still builds", () => {

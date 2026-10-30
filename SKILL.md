@@ -92,7 +92,14 @@ arrow a -> b "label" [dashed|accent|blue]    # also a <- b, a <-> b
 note "Footnote line under the diagram."
 ```
 
-Rows are laid out top to bottom, boxes evenly across the row (max 210 px wide; text wraps). Text in backticks (`"`commit(writes)`"`) renders monospace. Arrows within a row are horizontal (curved over boxes in between); between rows they run bottom-to-top-center. Two arrows between the same pair in opposite directions are offset automatically. With `animate`, arrows appear in listed order and reveal their endpoints, so list arrows in the order of the story. Lay out rows so arrows are short: put a box under the box it comes from.
+Rows are laid out top to bottom, boxes evenly across the row (max 210 px wide; text wraps). Text in backticks
+(`"`commit(writes)`"`) renders monospace. Arrows within a row are horizontal (curved over boxes in between); between
+rows they run down, across the gap, and down again, so a long arrow never cuts diagonally through the boxes it
+passes. Two arrows between the same pair in opposite directions are given separate lanes automatically.
+
+With `animate`, arrows appear in listed order and reveal their endpoints, so list arrows in the order of the story.
+Each arrow then carries a short pulse from its tail to its head; a still frame — print, or a video beat — shows the
+pulse parked at the head. Lay out rows so arrows are short: put a box under the box it comes from.
 
 Use `accent` (rust) for what is new, important or the focus; `blue` for the contrasting role; `muted` for passive or external parts; `dashed` for planned, optional or hypothetical parts.
 
@@ -168,9 +175,17 @@ Pace over everything: 12 shots/min is the floor for a fast video, 20+ reads as b
 
 ```sh
 node <skill>/video.mjs script.md --check          # shots, beats, words, length, rhythm, warnings
+node <skill>/video.mjs script.md --preview        # rehearse: play, jump, scrub, rewrite, save
 node <skill>/video.mjs script.md -o runs/$(date +%Y%m%d-%H%M%S)
 node <skill>/video.mjs runs/<run> --inspect        # per beat: measured speech, outliers, hold share
 ```
+
+Rehearse before rendering. `--preview` serves the storyboard and its synthesized narration on loopback in a browser:
+play through the whole script, click a beat, scrub the timeline, replay or loop a scene. Saving the Markdown reloads
+the page in about a second, keeps the current beat and resynthesizes only the lines that changed; an invalid edit
+keeps the last good version playable with the parse error shown. Use it to settle wording, pacing and pronunciation,
+then render. It does not show the final encode's zoom, fade or frame rounding, and it stops (and deletes its cached
+speech) when the command exits.
 
 A render writes `preview.html` into its run directory and rewrites it after every beat, so open it in a browser
 (refresh is automatic) instead of watching the terminal. After the render, `--inspect` is the sensor: it shows
@@ -185,8 +200,10 @@ holds still, slides snap in.
 
 `--check` is the only cheap feedback: rendering synthesizes every beat and encodes every clip. `examples/video/fireship.md`
 is a 40-second, 12-shot script in that style; `examples/video/chilies.md` is the relaxed 9-second-per-shot version.
-Speech is local `say` by default (macOS); `tts-provider: mistral` sends narration to Mistral's API. Review every
-claim, the pronunciation and the visual fit — this tool writes nothing, it only assembles.
+Speech is Voxtral by default and needs `MISTRAL_API_KEY`: narration text goes to Mistral's API, so keep private
+material out of it, or set `tts-provider: say` — the offline macOS voice, also used automatically when the key is
+missing on a Mac. Voxtral reads about 40% slower; `tts-speed: 1.4` restores the `say` pace. Review every claim, the
+pronunciation and the visual fit — this tool writes nothing, it only assembles.
 
 ## Walkthroughs
 

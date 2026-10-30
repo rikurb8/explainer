@@ -81,6 +81,12 @@ blockquote{margin:1.4rem 0;padding:.2rem 0 .2rem 1.2rem;border-left:3px solid va
 .anim.armed.play .step.edge{animation-name:edgeIn}
 @keyframes stepIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @keyframes edgeIn{from{opacity:0}to{opacity:1}}
+/* A pulse rides each arrow: parked at the head when the figure is still, run once when it plays. */
+.anim .step.edge .pulse{stroke-dasharray:.12 1;stroke-dashoffset:-.88}
+.anim.armed .step.edge .pulse{stroke-dashoffset:0}
+.anim.armed.play .step.edge .pulse{animation:pulseIn .7s ease-out both;animation-delay:calc(var(--i) * var(--pace, .45s))}
+@keyframes pulseIn{from{stroke-dashoffset:0}to{stroke-dashoffset:-.88}}
+@media (prefers-reduced-motion:reduce){.anim.armed.play .step.edge .pulse{animation:none;stroke-dashoffset:-.88}}
 .steps{margin:2rem 0 2.2rem;border:1px solid var(--rule);border-radius:6px;background:#fffdf8}
 .steps-head{display:flex;align-items:center;gap:.8rem;padding:.6rem 1rem;border-bottom:1px solid var(--rule);
  font:600 .72rem 'Avenir Next','Helvetica Neue',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}

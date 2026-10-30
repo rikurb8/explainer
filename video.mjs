@@ -6,12 +6,13 @@ import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renam
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { Book, encode, frontMatter, sections } from "./lib/render.mjs";
+import { startRehearsal } from "./lib/rehearsal.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 export function parseVideo(source) {
 	const { meta, body } = frontMatter(source.replace(/\r\n/g, "\n"));
-	const provider = meta["tts-provider"] ?? "say";
+	const provider = meta["tts-provider"] ?? "mistral";
 	if (!["say", "mistral"].includes(provider)) throw new Error(`tts-provider: unknown provider "${provider}"`);
 	const tts = {
 		provider,
@@ -52,6 +53,18 @@ export function parseVideo(source) {
 	const scale = Number(meta.visual ?? 1);
 	if (!Number.isFinite(scale) || scale < 0.5 || scale > 2) throw new Error("visual scale must be 0.5–2");
 	return { title: meta.title ?? "Explainer", scenes, tts, pause, scale };
+}
+
+// Voxtral is the default voice. A Mac without MISTRAL_API_KEY still renders, spoken by the local say voice, which
+// is why every consumer resolves the declared voice before synthesizing.
+export function resolveTts(tts, env = process.env, platform = process.platform) {
+	if (tts.provider === "say") {
+		if (platform !== "darwin") throw new Error("The say tts-provider needs macOS; set MISTRAL_API_KEY, or use tts-provider: mistral.");
+		return tts;
+	}
+	if (env.MISTRAL_API_KEY) return tts;
+	if (platform === "darwin") return { ...tts, provider: "say", voice: "Samantha" };
+	throw new Error("Set MISTRAL_API_KEY: voxtral is the default voice, and the say fallback needs macOS.");
 }
 
 // Narration beats are capped at 240 characters, comfortably under cloud speech prompt limits.
@@ -118,11 +131,11 @@ ${video.scenes.map((scene, i) => `<section class="scene${scene.flash ? " flash-s
 <script>
 const beats = ${JSON.stringify(video.scenes.map((s) => s.beats)).replace(/</g, "\\u003c")};
 const params = new URLSearchParams(location.search);
-if (params.has('scene')) {
- const index = Number(params.get('scene')), beat = Number(params.get('beat') || 0);
- const scenes = [...document.querySelectorAll('.scene')];
+const scenes = [...document.querySelectorAll('.scene')];
+function showBeat(index, beat) {
+ if (!Number.isInteger(index) || !Number.isInteger(beat) || !beats[index]?.[beat]) return;
  const scene = scenes[index];
- scenes.forEach(s => { if (s !== scene) s.remove(); });
+ scenes.forEach(s => { s.style.display = s === scene ? '' : 'none'; });
  // A word card shows the words already, so it has no caption line to update.
  const caption = scene.querySelector('.caption');
  if (caption) caption.textContent = beats[index][beat];
@@ -134,7 +147,14 @@ if (params.has('scene')) {
   let cutoff = Math.ceil(max * (beat + 1) / beats[index].length);
   // Keep a flow arrow's newly revealed destination visible with the arrow.
   if (steps.some(s => order(s) === cutoff && s.classList.contains('edge')) && steps.some(s => order(s) === cutoff + 1 && !s.classList.contains('edge'))) cutoff++;
-  steps.forEach(s => { if (order(s) > cutoff) s.style.opacity = '0'; });
+  steps.forEach(s => { s.style.opacity = order(s) > cutoff ? '0' : ''; });
+ });
+}
+if (params.has('scene')) showBeat(Number(params.get('scene')), Number(params.get('beat') || 0));
+if (params.has('rehearsal')) {
+ showBeat(0, 0);
+ window.addEventListener('message', event => {
+  if (event.source === parent && event.data?.type === 'rehearsal:beat') showBeat(event.data.sceneIndex, event.data.beatIndex);
  });
 }
 </script></html>`;
@@ -267,7 +287,8 @@ export function createVideoRun(output, { source, input, title }) {
 export function renderVideo(input, output) {
 	const source = readFileSync(input, "utf8");
 	const video = parseVideo(source);
-	const tts = video.tts;
+	const tts = resolveTts(video.tts);
+	if (tts.provider !== video.tts.provider) console.warn("No MISTRAL_API_KEY: speaking with the local say voice Samantha.");
 	// Author-supplied Markdown supports raw HTML, like books: render trusted sources only.
 	const chrome = process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 	if (existsSync(output)) throw new Error(`Output directory already exists: ${output}`);
@@ -283,7 +304,6 @@ export function renderVideo(input, output) {
 		manifest.settings = { tts, width: 1280, height: 720, fps: 30, pauseSeconds: video.pause };
 		manifest.renderer = Object.fromEntries(["video.mjs", "book.css", "lib/render.mjs", "lib/diagrams.mjs", "lib/highlight.mjs", "package-lock.json"].map((file) => [file, sha256(readFileSync(path.join(HERE, file)))]));
 		archive.save();
-		if (tts.provider === "say" && process.platform !== "darwin") throw new Error("The say tts-provider needs macOS; use tts-provider: mistral.");
 		if (!existsSync(chrome)) throw new Error("Chrome not found; set CHROME_PATH to its executable.");
 		for (const tool of ["ffmpeg", "ffprobe"]) manifest.tools[tool] = run(tool, ["-version"]).split("\n")[0];
 		manifest.tools.chrome = run(chrome, ["--version"]).trim();
@@ -354,10 +374,12 @@ export function renderVideo(input, output) {
 export function inspectRun(dir) {
 	const manifest = JSON.parse(readFileSync(path.join(dir, "manifest.json"), "utf8"));
 	const video = parseVideo(readFileSync(path.join(dir, "source.md"), "utf8"));
+	// The manifest records the voice that actually spoke, which differs from the source when say was the fallback.
+	const tts = manifest.settings?.tts ?? video.tts;
 	const rows = manifest.beats.map((beat) => {
 		const words = beat.narration.trim().split(/\s+/).length;
 		const hold = beat.hold ?? video.pause;
-		const speech = beat.audioSeconds ? beat.audioSeconds / video.tts.speed : null;
+		const speech = beat.audioSeconds ? beat.audioSeconds / tts.speed : null;
 		return { beat, hold, words, speech, rate: speech ? words / speech : null };
 	});
 	const measured = rows.filter((row) => row.rate).map((row) => row.rate).sort((a, b) => a - b);
@@ -366,7 +388,7 @@ export function inspectRun(dir) {
 	const percent = (value) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(0)}%`;
 	const lines = [
 		`${path.basename(dir)}: ${manifest.status} · ${rows.length} beats · ${(manifest.durationSeconds ?? 0).toFixed(1)}s video${wall ? ` · ${wall.toFixed(0)}s render` : ""}`,
-		`${video.tts.provider}${video.tts.speed !== 1 ? ` at ${video.tts.speed}×` : ""} · measured ${median ? median.toFixed(2) : "—"} words/s · estimated ${speechRate(video.tts).toFixed(2)} for --check`,
+		`${tts.provider}${tts.speed !== 1 ? ` at ${tts.speed}×` : ""} · measured ${median ? median.toFixed(2) : "—"} words/s · estimated ${speechRate(tts).toFixed(2)} for --check`,
 		"",
 		" id   words  speech  w/s   vs median  kind   hold  narration",
 		...rows.map(({ beat, hold, words, speech, rate }) => {
@@ -375,7 +397,7 @@ export function inspectRun(dir) {
 		}),
 	];
 	const holds = rows.reduce((sum, row) => sum + row.hold, 0);
-	const estimate = rows.reduce((sum, row) => sum + row.words / speechRate(video.tts) + row.hold, 0);
+	const estimate = rows.reduce((sum, row) => sum + row.words / speechRate(tts) + row.hold, 0);
 	lines.push("", `holds ${holds.toFixed(1)}s (${((holds / (manifest.durationSeconds || 1)) * 100).toFixed(0)}% of runtime) · estimate ${estimate.toFixed(0)}s vs ${(manifest.durationSeconds ?? 0).toFixed(0)}s rendered`);
 	// A beat far slower than the rest is a line to split, but only if there are words to move: a four-word line is
 	// already just one clause, and its length is the provider's fixed lead-in plus comma pauses.
@@ -389,7 +411,8 @@ export function inspectRun(dir) {
 // Speech rate is estimated per provider (measured: say 155 wpm ≈ 2.75 words/s, Voxtral ≈ 1.96), times tts-speed.
 export const speechRate = (tts) => ((tts.provider === "say" ? tts.rate : 118) / 60) * tts.speed;
 export function paceReport(video) {
-	const wordsPerSecond = speechRate(video.tts);
+	const tts = resolveTts(video.tts);
+	const wordsPerSecond = speechRate(tts);
 	const shots = video.scenes.map((scene) => {
 		const words = scene.beats.reduce((sum, beat) => sum + beat.split(/\s+/).length, 0);
 		// Only a scene's last beat can carry its hold; the others get the default pause.
@@ -420,13 +443,15 @@ export function paceReport(video) {
 	if (monotonous) lines.push("four shots in a row within 0.2s of each other: vary the hold, not just the words");
 	if (Math.max(...lengths) < mean * 2) lines.push("no shot reaches twice the mean: add one held shot for the punchline");
 	if (sd / mean < 0.25) lines.push(`cv ${(sd / mean).toFixed(2)} is even; real editing runs 0.4–0.6`);
+	// --check predicts the render, so it estimates the voice the run will really use.
+	if (tts.provider !== video.tts.provider) lines.push("no MISTRAL_API_KEY: estimating the local say voice that will render");
 	return lines.join("\n");
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
 	const [input, flag, output, ...extra] = process.argv.slice(2);
-	const usage = "usage: node video.mjs storyboard.md -o NEW_OUTPUT_DIRECTORY | script.md --check | run-directory --inspect";
-	const valid = input && !extra.length && (flag === "-o" ? Boolean(output) : (flag === "--check" || flag === "--inspect") && !output);
+	const usage = "usage: node video.mjs storyboard.md -o NEW_OUTPUT_DIRECTORY | script.md --preview | script.md --check | run-directory --inspect";
+	const valid = input && !extra.length && (flag === "-o" ? Boolean(output) : ["--check", "--inspect", "--preview"].includes(flag) && !output);
 	if (!valid) {
 		console.error(usage);
 		process.exitCode = 1;
@@ -434,6 +459,15 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 		try {
 			if (flag === "--check") console.log(paceReport(parseVideo(readFileSync(path.resolve(input), "utf8"))));
 			else if (flag === "--inspect") console.log(inspectRun(path.resolve(input)));
+			else if (flag === "--preview") {
+				const session = await startRehearsal(path.resolve(input));
+				console.log(`Rehearsal: ${session.url}\nSave Markdown to refresh. Ctrl+C to stop.`);
+				if (process.platform === "darwin") {
+					try { execFileSync("open", [session.url]); }
+					catch { console.log("Open the rehearsal URL in your browser."); }
+				}
+				for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => session.close().finally(() => process.exit(0)));
+			}
 			else renderVideo(path.resolve(input), path.resolve(output));
 		} catch (error) { console.error(error.message); process.exitCode = 1; }
 	}

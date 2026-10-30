@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rehearsal · Explainer</title>
+<style>
+:root{color-scheme:light dark;--paper:#fbf8f2;--card:#fffdf8;--ink:#2a2723;--muted:#726b60;--rule:#ded5c5;--accent:#a53f29;--wash:#f1e9dc;--sans:'Avenir Next',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace}
+@media(prefers-color-scheme:dark){:root{--paper:#131211;--card:#1c1a17;--ink:#efe9dd;--muted:#aaa194;--rule:#39342e;--accent:#ee967b;--wash:#2b241e}}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans);padding:32px clamp(16px,4vw,64px)}
+header,main,footer{max-width:1520px;margin:auto}header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}.eyebrow{font:11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}h1{font-size:clamp(24px,3vw,38px);letter-spacing:-.035em;line-height:1.12;margin:0;font-weight:600}header .hint{max-width:34ch;text-align:right}
+.hint{color:var(--muted);font-size:12px;margin:0}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}.stage{position:relative;aspect-ratio:16/9;overflow:hidden;background:#fbf8f2;border:1px solid var(--rule);border-radius:6px}iframe{border:0;width:1280px;height:720px;transform-origin:top left;display:block}.empty{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:8px;color:#726b60;font-size:14px}.empty strong{font-size:22px;color:#2a2723;font-weight:500}.empty[hidden]{display:none}
+.transport{margin-top:18px}.timeline{display:flex;align-items:center;gap:14px}.timeline input{flex:1;min-width:0;accent-color:var(--accent)}output{font:11px var(--mono);color:var(--muted);min-width:92px;text-align:right}.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}button{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--rule);background:var(--card);border-radius:5px;padding:9px 13px}button:hover:not(:disabled){background:var(--wash);border-color:var(--muted)}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}#play{background:var(--ink);color:var(--paper);border-color:var(--ink);min-width:88px}#play:hover:not(:disabled){opacity:.85}label.loop{margin-left:auto;font-size:12px;color:var(--muted);display:flex;gap:7px;align-items:center;cursor:pointer}input[type=checkbox]{accent-color:var(--accent)}
+.now{padding:20px 0;border-bottom:1px solid var(--rule)}#position{font:11px var(--mono);color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}#narration{font-size:19px;line-height:1.5;margin:0;max-width:65ch}#status{min-height:24px;font-size:12px;color:var(--muted);margin:14px 0 0}#error{color:var(--accent);border-left:2px solid var(--accent);padding:8px 12px;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}#error:empty{display:none}
+.aside-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:12px;margin-bottom:10px}.aside-head h2{font-size:14px;margin:0;font-weight:600}#summary{font:11px var(--mono);color:var(--muted)}ol{list-style:none;margin:0;padding:0;max-height:calc(100vh - 200px);overflow:auto;scrollbar-width:thin}li{margin:0 0 7px}.beat{width:100%;text-align:left;padding:13px 14px;display:grid;grid-template-columns:28px 1fr;gap:2px 10px;background:transparent;border-color:transparent}.beat[aria-current=true]{background:var(--wash);border-color:var(--rule);box-shadow:inset 3px 0 var(--accent)}.number{font:11px var(--mono);color:var(--muted);padding-top:2px;grid-row:1/4}.beat-title{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:600}.duration{font:11px var(--mono);color:var(--muted);white-space:nowrap}.line{font-size:13px;color:var(--muted);line-height:1.45}.warning{font-size:11px;color:var(--accent);margin-top:4px}
+footer{border-top:1px solid var(--rule);padding-top:16px;margin-top:32px;display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--muted)}kbd{font:10px var(--mono);border:1px solid var(--rule);border-radius:3px;padding:1px 4px}
+@media(max-width:960px){.workspace{grid-template-columns:1fr}ol{max-height:400px}header .hint{display:none}footer{flex-direction:column}label.loop{margin-left:0}}@media(prefers-reduced-motion:no-preference){button{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+<header><div><p class="eyebrow">Explainer / Rehearsal</p><h1 id="title">Preparing your storyboard</h1></div><p class="hint">Edit your Markdown. Save to refresh.<br>No video encode. No new dependencies.</p></header>
+<main class="workspace">
+<section aria-label="Rehearsal player">
+<div class="stage" id="stage"><iframe id="visual" title="Current storyboard beat" sandbox="allow-scripts" hidden></iframe><div class="empty" id="empty"><strong>Preparing narration</strong><span>Your storyboard will appear here.</span></div></div>
+<audio id="audio" preload="auto"></audio>
+<div class="transport">
+<div class="timeline"><input id="seek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Playback position" disabled><output id="time" for="seek">0:00 / 0:00</output></div>
+<div class="controls"><button id="previous" aria-label="Previous beat" disabled>←</button><button id="play" disabled>Play</button><button id="next" aria-label="Next beat" disabled>→</button><button id="replay" disabled>Replay scene</button><label class="loop"><input id="loop" type="checkbox">Loop scene</label></div>
+</div>
+<div class="now"><p id="position">Waiting for speech</p><p id="narration">Review the wording, pacing and visual fit before exporting.</p></div>
+<p id="status" role="status">Preparing narration…</p><p id="error" role="alert"></p>
+</section>
+<aside aria-label="Beat navigation"><div class="aside-head"><h2>Storyboard</h2><span id="summary">—</span></div><ol id="beats"></ol></aside>
+</main>
+<footer><span>Rehearsal uses your configured voice. Browser transitions are not the final MP4.</span><span><kbd>Space</kbd> Play / pause &nbsp; <kbd>←</kbd> <kbd>→</kbd> Change beat · Ctrl+C in terminal to stop</span></footer>
+<script src="player.js"></script>
+</body>
+</html>
