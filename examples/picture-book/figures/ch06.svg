@@ -1,0 +1,38 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch06-title">
+<title id="ch06-title">Turned too far: the pages fly past in a blur and nobody can follow them.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<g stroke="#b4472f" stroke-width="3" fill="none" stroke-linecap="round" opacity=".5">
+<path d="M30 150c40-30 90-30 140 0"/><path d="M20 200c50-34 110-34 160 0"/><path d="M40 250c40-26 80-26 120 0"/>
+</g>
+<g stroke="#b4472f" stroke-width="3" fill="none" stroke-linecap="round" opacity=".28">
+<path d="M800 120c40 26 80 26 120 0"/><path d="M770 172c50 34 110 34 160 0"/><path d="M820 224c30 22 60 22 90 0"/>
+</g>
+<g fill="#f4eee2" stroke="#d9d0be" stroke-width="3">
+<rect x="150" y="150" width="132" height="180" rx="4" transform="rotate(-15 216 240)" opacity=".22"/>
+<rect x="252" y="136" width="132" height="180" rx="4" transform="rotate(-7 318 226)" opacity=".45"/>
+<rect x="352" y="122" width="132" height="180" rx="4" transform="rotate(-1 418 212)" opacity=".7"/>
+</g>
+<g fill="#fbf8f2" stroke="#2a2723" stroke-width="4">
+<rect x="452" y="112" width="140" height="190" rx="4" transform="rotate(7 522 207)"/>
+</g>
+<g stroke="#d9d0be" stroke-width="4" stroke-linecap="round" transform="rotate(7 522 207)">
+<path d="M474 146h96"/><path d="M474 172h96"/><path d="M474 198h72"/><path d="M474 224h86"/>
+</g>
+<g>
+<path d="M600 330c0-22 16-38 36-38s36 16 36 38z" fill="#2e6a8a"/>
+<circle cx="636" cy="266" r="21" fill="#e0bd97"/>
+<path d="M615 258l21-30 21 30z" fill="#2e6a8a"/>
+<circle cx="629" cy="268" r="3" fill="#2a2723"/>
+<circle cx="643" cy="268" r="3" fill="#2a2723"/>
+<path d="M628 279c5 5 11 5 16 0" stroke="#2a2723" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</g>
+<g transform="translate(824 268)">
+<path d="M-76 0A76 76 0 0 1 76 0" fill="none" stroke="#e3dbcc" stroke-width="12" stroke-linecap="round"/>
+<path d="M-76 0A76 76 0 0 1 58 -49" fill="none" stroke="#b4472f" stroke-width="12" stroke-linecap="round"/>
+<path d="M0 0L58 -49" stroke="#2a2723" stroke-width="5" stroke-linecap="round"/>
+<circle cx="0" cy="0" r="7" fill="#2a2723"/>
+<circle cx="-76" cy="0" r="5" fill="#2a2723"/>
+<circle cx="76" cy="0" r="5" fill="#2a2723"/>
+<text x="0" y="42" font-family="'Avenir Next',Helvetica,sans-serif" font-size="24" font-weight="600" fill="#b4472f" text-anchor="middle">1.9x</text>
+</g>
+</svg>

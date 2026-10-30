@@ -1,0 +1,38 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch11-title">
+<title id="ch11-title">In the morning Mara makes the book herself; two small figures walk out through the door.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<path d="M0 0h340L200 420H0z" fill="#e0bd97" opacity=".16"/>
+<rect x="52" y="36" width="180" height="240" rx="4" fill="#c2b18c" opacity=".3"/>
+<rect x="52" y="36" width="180" height="240" rx="4" fill="none" stroke="#c2b18c" stroke-width="4"/>
+<line x1="142" y1="36" x2="142" y2="276" stroke="#c2b18c" stroke-width="3"/>
+<line x1="52" y1="156" x2="232" y2="156" stroke="#c2b18c" stroke-width="3"/>
+<rect x="0" y="336" width="1000" height="7" fill="#2a2723"/>
+<rect x="796" y="96" width="164" height="240" fill="#2a2723" opacity=".12"/>
+<rect x="796" y="96" width="164" height="240" fill="none" stroke="#2a2723" stroke-width="5"/>
+<rect x="330" y="248" width="330" height="88" rx="5" fill="#f4eee2" stroke="#c2b18c" stroke-width="3"/>
+<circle cx="452" cy="206" r="31" fill="#e0bd97"/>
+<path d="M420 206c0-24 14-38 32-38s32 14 32 38c-10-8-20-12-32-12s-22 4-32 12" fill="#2a2723"/>
+<circle cx="452" cy="168" r="11" fill="#2a2723"/>
+<path d="M388 336v-52a64 64 0 0 1 128 0v52z" fill="#2e6a8a"/>
+<path d="M412 292l106 10" stroke="#2a2723" stroke-width="10" stroke-linecap="round" opacity=".85"/>
+<rect x="498" y="296" width="130" height="20" rx="2" fill="#fbf8f2" stroke="#2a2723" stroke-width="2.5"/>
+<g stroke="#d9d0be" stroke-width="3" stroke-linecap="round">
+<path d="M512 304h54"/>
+</g>
+<g fill="#f4eee2" stroke="#d9d0be" stroke-width="2">
+<rect x="660" y="306" width="150" height="15" rx="2"/>
+<rect x="668" y="290" width="150" height="15" rx="2"/>
+</g>
+<path d="M700 336l70-14-6 18-64 14z" fill="#fbf8f2" stroke="#2a2723" stroke-width="2.5"/>
+<path d="M714 334l32-7" stroke="#c2b18c" stroke-width="2"/>
+<g opacity=".75">
+<path d="M818 336c0-16 11-27 25-27s25 11 25 27z" fill="#2a2723"/>
+<circle cx="843" cy="298" r="13" fill="#2a2723"/>
+<path d="M830 294l13-20 13 20z" fill="#b4472f"/>
+<path d="M868 316c10-4 16-12 17-22" stroke="#2a2723" stroke-width="5" fill="none" stroke-linecap="round"/>
+<circle cx="888" cy="288" r="7" fill="#f0d9a8"/>
+<path d="M880 336c0-12 8-20 18-20s18 8 18 20z" fill="#2a2723"/>
+<circle cx="898" cy="308" r="10" fill="#2a2723"/>
+<path d="M888 305l10-15 10 15z" fill="#b4472f"/>
+</g>
+</svg>

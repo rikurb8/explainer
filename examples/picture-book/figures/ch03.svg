@@ -1,0 +1,43 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch03-title">
+<title id="ch03-title">Two small helpers climb the bench leg by lantern light, one blue and one sand.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<rect x="0" y="0" width="1000" height="56" fill="#2a2723" opacity=".1"/>
+<rect x="0" y="56" width="1000" height="8" fill="#2a2723" opacity=".55"/>
+<rect x="0" y="332" width="1000" height="88" fill="#f4eee2"/>
+<line x1="0" y1="332" x2="1000" y2="332" stroke="#2a2723" stroke-width="4"/>
+<rect x="120" y="64" width="86" height="268" fill="#c2b18c"/>
+<line x1="163" y1="64" x2="163" y2="332" stroke="#a89c85" stroke-width="3"/>
+<ellipse cx="250" cy="300" rx="130" ry="46" fill="#2a2723" opacity=".06"/>
+<ellipse cx="690" cy="300" rx="150" ry="50" fill="#2a2723" opacity=".06"/>
+<ellipse cx="470" cy="286" rx="120" ry="90" fill="#e0bd97" opacity=".3"/>
+<g>
+<path d="M420 332c0-24 17-40 38-40s38 16 38 40z" fill="#2e6a8a"/>
+<circle cx="458" cy="266" r="23" fill="#e0bd97"/>
+<path d="M435 258l23-32 23 32z" fill="#2e6a8a"/>
+<circle cx="451" cy="268" r="3" fill="#2a2723"/>
+<circle cx="466" cy="268" r="3" fill="#2a2723"/>
+<path d="M452 277c4 3 8 3 12 0" stroke="#2a2723" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<path d="M496 306c15-5 25-17 29-34" stroke="#2e6a8a" stroke-width="8" fill="none" stroke-linecap="round"/>
+</g>
+<ellipse cx="562" cy="300" rx="92" ry="72" fill="#f0d9a8" opacity=".3"/>
+<g transform="translate(562 262)">
+<path d="M0-46v-12" stroke="#2a2723" stroke-width="4" stroke-linecap="round"/>
+<path d="M-16-46h32l-5 8h-22z" fill="#2a2723"/>
+<rect x="-24" y="-38" width="48" height="62" rx="8" fill="#b4472f"/>
+<rect x="-15" y="-29" width="30" height="44" rx="4" fill="#f0d9a8"/>
+<path d="M-24-6h48" stroke="#2a2723" stroke-width="3"/>
+<path d="M-30 24h60" stroke="#2a2723" stroke-width="5" stroke-linecap="round"/>
+<path d="M-12 24l4-14h16l4 14z" fill="#2a2723"/>
+</g>
+<g>
+<path d="M648 342c0-21 15-36 33-36s33 15 33 36z" fill="#c2b18c"/>
+<circle cx="681" cy="286" r="19" fill="#e0bd97"/>
+<path d="M662 279l19-28 19 28z" fill="#b4472f"/>
+<circle cx="674" cy="288" r="2.6" fill="#2a2723"/>
+<circle cx="688" cy="288" r="2.6" fill="#2a2723"/>
+<path d="M675 296c3 3 7 3 10 0" stroke="#2a2723" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</g>
+<g fill="#7b7468" opacity=".35">
+<ellipse cx="290" cy="352" rx="6" ry="3"/><ellipse cx="330" cy="366" rx="6" ry="3"/><ellipse cx="372" cy="348" rx="6" ry="3"/>
+</g>
+</svg>

@@ -1,0 +1,31 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch08-title">
+<title id="ch08-title">Turned just right: a child on a cushion follows one page, and a dog sleeps beside her.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<ellipse cx="600" cy="230" rx="330" ry="200" fill="#e0bd97" opacity=".18"/>
+<rect x="470" y="44" width="340" height="308" rx="6" fill="#f4eee2" stroke="#c2b18c" stroke-width="3"/>
+<g stroke="#cdc4b0" stroke-width="5" stroke-linecap="round">
+<path d="M508 106h230"/><path d="M508 138h230"/><path d="M508 170h150"/>
+</g>
+<rect x="508" y="206" width="240" height="108" rx="3" fill="#fbf8f2" stroke="#d9d0be" stroke-width="2"/>
+<path d="M516 306l52-56 34 34 26-22 42 44" fill="none" stroke="#2e6a8a" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="704" cy="234" r="13" fill="#b4472f"/>
+<path d="M470 352h340" stroke="#2a2723" stroke-width="3" opacity=".18"/>
+<ellipse cx="266" cy="320" rx="112" ry="34" fill="#c2b18c" opacity=".45"/>
+<path d="M186 320c0-52 36-88 80-88s80 36 80 88z" fill="#b4472f" opacity=".85"/>
+<circle cx="266" cy="186" r="34" fill="#e0bd97"/>
+<path d="M234 180c0-26 14-42 32-42s32 16 32 42c-10-8-22-12-32-12s-22 4-32 12" fill="#2a2723"/>
+<circle cx="286" cy="190" r="3.5" fill="#2a2723"/>
+<path d="M282 202c6 5 12 5 17 1" stroke="#2a2723" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<path d="M320 268c34 6 58 18 74 30" stroke="#b4472f" stroke-width="11" fill="none" stroke-linecap="round"/>
+<circle cx="398" cy="300" r="8" fill="#e0bd97"/>
+<g transform="translate(120 336)">
+<ellipse cx="0" cy="0" rx="62" ry="26" fill="#7b7468" opacity=".5"/>
+<circle cx="-56" cy="-6" r="20" fill="#7b7468" opacity=".5"/>
+<path d="M-76-16c-4-12 6-20 14-14" stroke="#7b7468" stroke-width="6" fill="none" stroke-linecap="round"/>
+<path d="M58-8c14-8 18-18 14-26" stroke="#7b7468" stroke-width="6" fill="none" stroke-linecap="round"/>
+<g stroke="#7b7468" stroke-width="2" opacity=".9">
+<path d="M-62-12h8"/><path d="M-62-4h8"/>
+</g>
+</g>
+<text x="824" y="352" font-family="'Avenir Next',Helvetica,sans-serif" font-size="19" font-weight="600" fill="#b4472f" text-anchor="end">1.0x</text>
+</svg>

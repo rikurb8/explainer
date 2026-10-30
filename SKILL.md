@@ -13,6 +13,8 @@ Files in this skill directory (resolve paths against it):
 - `examples/durable/`: samples of the expected prose style, structure and figures, written from pi-durable's public
   README (`pi-durable-README.md`): `book.md` (built: `index.html`) and `walkthrough.md` (built: `walkthrough.html`).
   Read `book.md` before writing a book and `walkthrough.md` before writing a walkthrough.
+- `examples/picture-book/`: a picture book and its narrated reel from one set of sources, one hand-drawn SVG per
+  spread and a working panel page. Read it when pages are pictures rather than prose; `make.mjs` inlines the figures.
 - `template.md`: a complete example using every feature (syntax reference).
 - `loop.mjs`: the controlled render → review → revise loop for videos (see Review).
 - `video.mjs`: the narrated-video CLI (`node <skill>/video.mjs storyboard.md --check` or `-o <dir>`). Scripts:

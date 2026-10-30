@@ -1,0 +1,32 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch05-title">
+<title id="ch05-title">The little machine has three dials: pages, pace and voice.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<ellipse cx="500" cy="200" rx="380" ry="190" fill="#b4472f" opacity=".05"/>
+<path d="M500 34v20" stroke="#2a2723" stroke-width="4" stroke-linecap="round"/>
+<circle cx="500" cy="26" r="11" fill="#b4472f"/>
+<rect x="170" y="56" width="660" height="272" rx="16" fill="#f4eee2" stroke="#2a2723" stroke-width="4"/>
+<rect x="206" y="328" width="26" height="26" rx="4" fill="#2a2723" opacity=".6"/>
+<rect x="768" y="328" width="26" height="26" rx="4" fill="#2a2723" opacity=".6"/>
+<g stroke="#2a2723" stroke-width="3" fill="#fbf8f2">
+<circle cx="300" cy="152" r="46"/><circle cx="500" cy="152" r="46"/><circle cx="700" cy="152" r="46"/>
+</g>
+<g stroke="#c2b18c" stroke-width="3" stroke-linecap="round">
+<path d="M300 110v8"/><path d="M300 186v8"/><path d="M258 152h8"/><path d="M334 152h8"/>
+<path d="M500 110v8"/><path d="M500 186v8"/><path d="M458 152h8"/><path d="M534 152h8"/>
+<path d="M700 110v8"/><path d="M700 186v8"/><path d="M658 152h8"/><path d="M734 152h8"/>
+</g>
+<g stroke="#b4472f" stroke-width="5" stroke-linecap="round">
+<path d="M300 152l16-24"/>
+<path d="M500 152l-6-30"/>
+<path d="M700 152l26-12"/>
+</g>
+<g font-family="'Avenir Next',Helvetica,sans-serif" font-size="15" letter-spacing=".18em" fill="#7b7468" text-anchor="middle">
+<text x="300" y="214">PAGES</text><text x="500" y="214">PACE</text><text x="700" y="214">VOICE</text>
+</g>
+<rect x="330" y="242" width="340" height="58" rx="8" fill="#2a2723"/>
+<rect x="348" y="252" width="304" height="38" rx="3" fill="#fbf8f2"/>
+<g stroke="#d9d0be" stroke-width="3" stroke-linecap="round">
+<path d="M366 266h130"/><path d="M366 278h96"/>
+</g>
+<circle cx="620" cy="271" r="9" fill="#b4472f"/>
+</svg>

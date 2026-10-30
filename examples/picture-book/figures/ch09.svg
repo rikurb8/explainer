@@ -1,0 +1,33 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch09-title">
+<title id="ch09-title">The three rules the helpers keep: one idea a page, the picture shows it, the words say it out loud.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<g fill="#f4eee2" stroke="#e3dbcc" stroke-width="2">
+<rect x="56" y="50" width="272" height="300" rx="8"/>
+<rect x="364" y="50" width="272" height="300" rx="8"/>
+<rect x="672" y="50" width="272" height="300" rx="8"/>
+</g>
+<g>
+<rect x="136" y="92" width="112" height="152" rx="3" fill="#fbf8f2" stroke="#2a2723" stroke-width="3"/>
+<circle cx="192" cy="168" r="23" fill="#b4472f"/>
+</g>
+<g>
+<path d="M424 110c24-28 56-42 76-42s52 14 76 42c-24 28-56 42-76 42s-52-14-76-42z" fill="#fbf8f2" stroke="#b4472f" stroke-width="3.5"/>
+<circle cx="500" cy="110" r="15" fill="#2a2723"/>
+<circle cx="505" cy="105" r="4.5" fill="#fbf8f2"/>
+<rect x="440" y="168" width="120" height="86" rx="2" fill="#fbf8f2" stroke="#2a2723" stroke-width="3"/>
+<path d="M450 240l28-32 20 22 14-14 28 24" fill="none" stroke="#2e6a8a" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="536" cy="190" r="8" fill="#2e6a8a" opacity=".55"/>
+</g>
+<g>
+<path d="M748 156c24-16 56-16 80 0" fill="none" stroke="#2a2723" stroke-width="6" stroke-linecap="round"/>
+<path d="M742 186c28-9 64-9 92 0" fill="none" stroke="#2a2723" stroke-width="6" stroke-linecap="round"/>
+<g stroke="#b4472f" stroke-width="3" stroke-linecap="round" fill="none">
+<path d="M846 148l38-16"/><path d="M852 172l44 2"/><path d="M846 196l38 18"/>
+</g>
+</g>
+<g font-family="'Avenir Next',Helvetica,sans-serif" font-size="13" letter-spacing=".12em" fill="#7b7468" text-anchor="middle">
+<text x="192" y="298">ONE IDEA</text>
+<text x="500" y="298">THE PICTURE SHOWS IT</text>
+<text x="808" y="298">THE WORDS SAY IT</text>
+</g>
+</svg>

@@ -1,0 +1,44 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch10-title">
+<title id="ch10-title">Mara stays awake and watches the whole order once: the note, the words, the voice, the frames, one long stitch.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<ellipse cx="700" cy="190" rx="230" ry="150" fill="#e0bd97" opacity=".35"/>
+<circle cx="300" cy="146" r="30" fill="#e0bd97"/>
+<path d="M270 146c0-24 14-38 30-38s30 14 30 38c-9-8-19-12-30-12s-21 4-30 12" fill="#2a2723"/>
+<circle cx="300" cy="112" r="10" fill="#2a2723"/>
+<path d="M264 232v-32a36 36 0 0 1 72 0v32z" fill="#b4472f" opacity=".9"/>
+<circle cx="292" cy="148" r="3" fill="#2a2723"/>
+<circle cx="308" cy="148" r="3" fill="#2a2723"/>
+<path d="M293 158c4 3 9 3 13 0" stroke="#2a2723" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+<rect x="600" y="116" width="220" height="140" rx="10" fill="#f4eee2" stroke="#2a2723" stroke-width="4"/>
+<g fill="#b4472f"><circle cx="640" cy="156" r="8"/><circle cx="710" cy="156" r="8"/><circle cx="780" cy="156" r="8"/></g>
+<rect x="628" y="192" width="164" height="16" rx="3" fill="#2a2723" opacity=".75"/>
+<rect x="642" y="198" width="120" height="5" rx="2" fill="#fbf8f2"/>
+<g>
+<path d="M470 330c0-20 14-34 32-34s32 14 32 34z" fill="#2e6a8a"/>
+<circle cx="502" cy="280" r="17" fill="#e0bd97"/>
+<path d="M485 274l17-24 17 24z" fill="#2e6a8a"/>
+</g>
+<g>
+<path d="M846 334c0-18 13-31 29-31s29 13 29 31z" fill="#c2b18c"/>
+<circle cx="875" cy="288" r="15" fill="#e0bd97"/>
+<path d="M860 283l15-22 15 22z" fill="#b4472f"/>
+</g>
+<g font-family="'Avenir Next',Helvetica,sans-serif" font-size="13" letter-spacing=".06em" text-anchor="middle">
+<rect x="40" y="352" width="140" height="40" rx="6" fill="#f4eee2" stroke="#c2b18c" stroke-width="2"/>
+<text x="110" y="377" fill="#5a544a">the note</text>
+<rect x="248" y="352" width="140" height="40" rx="6" fill="#f4eee2" stroke="#c2b18c" stroke-width="2"/>
+<text x="318" y="377" fill="#5a544a">the words</text>
+<rect x="456" y="352" width="140" height="40" rx="6" fill="#f4eee2" stroke="#c2b18c" stroke-width="2"/>
+<text x="526" y="377" fill="#5a544a">the voice</text>
+<rect x="664" y="352" width="140" height="40" rx="6" fill="#f4eee2" stroke="#c2b18c" stroke-width="2"/>
+<text x="734" y="377" fill="#5a544a">the frames</text>
+<rect x="872" y="352" width="108" height="40" rx="6" fill="#fdf3f0" stroke="#b4472f" stroke-width="2"/>
+<text x="926" y="377" fill="#b4472f">one stitch</text>
+</g>
+<g stroke="#7b7468" stroke-width="2.5" fill="none" stroke-linecap="round">
+<path d="M188 372h50"/><path d="M232 366l8 6-8 6"/>
+<path d="M396 372h50"/><path d="M440 366l8 6-8 6"/>
+<path d="M604 372h50"/><path d="M648 366l8 6-8 6"/>
+<path d="M812 372h50"/><path d="M856 366l8 6-8 6"/>
+</g>
+</svg>

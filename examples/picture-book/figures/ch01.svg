@@ -1,0 +1,29 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch01-title">
+<title id="ch01-title">Mara sits alone at her bench at night, a stack of pages beside her.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<rect x="700" y="34" width="230" height="180" rx="6" fill="#2e6a8a"/>
+<circle cx="800" cy="92" r="20" fill="#f4eee2"/>
+<circle cx="866" cy="128" r="3" fill="#f4eee2" opacity=".65"/>
+<circle cx="756" cy="152" r="2.5" fill="#f4eee2" opacity=".45"/>
+<rect x="700" y="34" width="230" height="180" rx="6" fill="none" stroke="#2a2723" stroke-width="4"/>
+<line x1="815" y1="34" x2="815" y2="214" stroke="#2a2723" stroke-width="3"/>
+<ellipse cx="120" cy="250" rx="180" ry="130" fill="#b4472f" opacity=".06"/>
+<line x1="120" y1="24" x2="120" y2="120" stroke="#2a2723" stroke-width="3"/>
+<path d="M78 120h84l-16 36H94z" fill="#b4472f"/>
+<rect x="40" y="300" width="920" height="12" rx="3" fill="#2a2723"/>
+<rect x="96" y="312" width="14" height="80" fill="#2a2723" opacity=".5"/>
+<rect x="880" y="312" width="14" height="80" fill="#2a2723" opacity=".5"/>
+<circle cx="300" cy="196" r="32" fill="#e0bd97"/>
+<circle cx="300" cy="160" r="13" fill="#2a2723"/>
+<path d="M258 300v-42a42 42 0 0 1 84 0v42z" fill="#2e6a8a"/>
+<path d="M266 258l94 14" stroke="#2a2723" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+<g fill="#f4eee2" stroke="#d9d0be" stroke-width="2">
+<rect x="600" y="286" width="240" height="14" rx="2"/>
+<rect x="608" y="272" width="240" height="14" rx="2"/>
+<rect x="598" y="258" width="240" height="14" rx="2"/>
+<rect x="610" y="244" width="240" height="14" rx="2"/>
+</g>
+<rect x="600" y="198" width="240" height="46" rx="3" fill="#fbf8f2" stroke="#c2b18c" stroke-width="3"/>
+<text x="616" y="220" font-family="'Avenir Next',Helvetica,sans-serif" font-size="15" fill="#2a2723"># the book of small things</text>
+<text x="616" y="236" font-family="'SF Mono',Menlo,monospace" font-size="12" fill="#a89c85"># a page, a page, a page</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch07-title">
+<title id="ch07-title">Turned too far the other way: one page stays so long that a spider builds a web across it.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<rect x="352" y="48" width="290" height="292" rx="4" fill="#f4eee2" stroke="#c2b18c" stroke-width="3"/>
+<g stroke="#d9d0be" stroke-width="5" stroke-linecap="round">
+<path d="M384 130h170"/><path d="M384 158h170"/><path d="M384 186h124"/>
+</g>
+<ellipse cx="606" cy="150" rx="16" ry="16" fill="#e0d8c6"/>
+<g stroke="#8d8576" stroke-width="1.5" fill="none">
+<path d="M352 48l84 4M352 48l78 26M352 48l64 46M352 48l44 60M352 48l18 68"/>
+<path d="M394 50c26 16 48 42 56 66M382 66c24 16 40 38 46 58M370 84c20 14 32 32 36 48M360 100c16 10 24 24 28 36"/>
+</g>
+<circle cx="404" cy="104" r="7" fill="#7b7468"/>
+<g transform="translate(812 176)">
+<circle cx="0" cy="0" r="66" fill="#f4eee2" stroke="#2a2723" stroke-width="4"/>
+<g stroke="#2a2723" stroke-width="3.5" stroke-linecap="round">
+<path d="M0-54v9"/><path d="M0 54v-9"/><path d="M-54 0h9"/><path d="M54 0h-9"/>
+</g>
+<path d="M0 0v-38" stroke="#2a2723" stroke-width="4" stroke-linecap="round"/>
+<path d="M0 0l-20 22" stroke="#b4472f" stroke-width="4" stroke-linecap="round"/>
+<text x="0" y="42" font-family="'Avenir Next',Helvetica,sans-serif" font-size="19" font-weight="600" fill="#b4472f" text-anchor="middle">0.3x</text>
+</g>
+<g transform="translate(180 340)">
+<path d="M-26 0h52l-6-42h-40z" fill="#b4472f" opacity=".85"/>
+<path d="M0-42c-16-24 0-46 0-46s16 22 0 46" fill="#2e6a8a" opacity=".65"/>
+<path d="M0-88c-12-18 0-34 0-34s12 16 0 34" fill="#2e6a8a" opacity=".4"/>
+<path d="M0-122c-8-12 0-22 0-22s8 10 0 22" fill="#2e6a8a" opacity=".25"/>
+</g>
+<g fill="#c2b18c" opacity=".45">
+<circle cx="686" cy="86" r="2.5"/><circle cx="736" cy="312" r="2"/><circle cx="300" cy="120" r="2"/>
+</g>
+</svg>

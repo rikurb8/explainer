@@ -1,0 +1,46 @@
+<svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ch04-title">
+<title id="ch04-title">One pile of pages becomes two things: a book you can read, and a reel that speaks.</title>
+<rect width="1000" height="420" fill="#fbf8f2"/>
+<g fill="#f4eee2" stroke="#d9d0be" stroke-width="2">
+<rect x="60" y="196" width="150" height="16" rx="2"/>
+<rect x="68" y="176" width="150" height="16" rx="2"/>
+<rect x="58" y="156" width="150" height="16" rx="2"/>
+</g>
+<rect x="58" y="96" width="150" height="56" rx="3" fill="#fbf8f2" stroke="#c2b18c" stroke-width="3"/>
+<text x="72" y="120" font-family="'SF Mono',Menlo,monospace" font-size="12" fill="#2a2723"># small things</text>
+<text x="72" y="138" font-family="'SF Mono',Menlo,monospace" font-size="12" fill="#a89c85"># a gate, a lamp</text>
+<text x="60" y="272" font-family="'Avenir Next',Helvetica,sans-serif" font-size="14" letter-spacing=".14em" fill="#7b7468">MARKDOWN</text>
+<g stroke="#b4472f" stroke-width="3" fill="none" stroke-linecap="round">
+<path d="M262 200h96"/>
+<path d="M350 190l12 10-12 10"/>
+</g>
+<g stroke="#2e6a8a" stroke-width="3" fill="none" stroke-linecap="round">
+<path d="M262 240h96"/>
+<path d="M350 230l12 10-12 10"/>
+</g>
+<g>
+<path d="M420 168h250v124H420z" fill="#fbf8f2" stroke="#2a2723" stroke-width="3"/>
+<path d="M545 168v124" stroke="#e3dbcc" stroke-width="2"/>
+<path d="M444 200h76" stroke="#e3dbcc" stroke-width="3"/>
+<path d="M444 220h76" stroke="#e3dbcc" stroke-width="3"/>
+<path d="M444 240h58" stroke="#e3dbcc" stroke-width="3"/>
+<circle cx="606" cy="212" r="18" fill="#b4472f"/>
+<path d="M600 204l14 8-14 8z" fill="#fbf8f2"/>
+<path d="M578 258h70" stroke="#e3dbcc" stroke-width="3"/>
+<path d="M420 168l-14-16h278l-14 16" fill="#f4eee2" stroke="#2a2723" stroke-width="3" stroke-linejoin="round"/>
+<text x="420" y="322" font-family="'Avenir Next',Helvetica,sans-serif" font-size="15" letter-spacing=".04em" fill="#7b7468">a book you can read</text>
+</g>
+<g>
+<rect x="716" y="150" width="220" height="150" rx="10" fill="#2e6a8a"/>
+<g fill="#fbf8f2">
+<rect x="736" y="166" width="14" height="10" rx="2"/><rect x="736" y="190" width="14" height="10" rx="2"/>
+<rect x="736" y="214" width="14" height="10" rx="2"/><rect x="736" y="238" width="14" height="10" rx="2"/>
+<rect x="736" y="262" width="14" height="10" rx="2"/><rect x="902" y="166" width="14" height="10" rx="2"/>
+<rect x="902" y="190" width="14" height="10" rx="2"/><rect x="902" y="214" width="14" height="10" rx="2"/>
+<rect x="902" y="238" width="14" height="10" rx="2"/><rect x="902" y="262" width="14" height="10" rx="2"/>
+</g>
+<circle cx="826" cy="225" r="38" fill="#fbf8f2"/>
+<path d="M816 208l26 17-26 17z" fill="#2e6a8a"/>
+<text x="716" y="322" font-family="'Avenir Next',Helvetica,sans-serif" font-size="15" letter-spacing=".04em" fill="#7b7468">a reel that says it out loud</text>
+</g>
+</svg>
