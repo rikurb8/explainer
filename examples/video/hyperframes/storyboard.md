@@ -1,7 +1,8 @@
 ---
 title: What survives a crash
-tts-provider: say
-tts-rate: 175
+tts-provider: mistral
+tts-voice: gb_jane_neutral
+tts-speed: 1.15
 pause: 0.25
 ---
 

@@ -4,7 +4,7 @@ A standalone integration proof, not a replacement for `video.mjs`. One request m
 
 ## Run
 
-Needs Node 22+, macOS with the Samantha speech voice, FFmpeg/FFprobe, and Chrome. Install the parent skill's dependencies first if `marked` is missing (`npm ci --ignore-scripts` at the skill root).
+Needs Node 22+, `MISTRAL_API_KEY` for Voxtral narration, FFmpeg/FFprobe, and Chrome. On macOS without the key, speech falls back to Samantha. Install the parent skill's dependencies first if `marked` is missing (`npm ci --ignore-scripts` at the skill root).
 
 From this directory:
 
@@ -32,11 +32,11 @@ The generated project is at `project/index.html`; the rendered movie is `video.m
 
 Build synthesizes speech before authoring the final timeline. Cues use fractions of each measured spoken window, excluding its hold; changing a line retimes its animation without guessing words per minute. This is beat-level synchronization, not word-level alignment. Only changed speech is synthesized again. Rebuild and rerun check after edits.
 
-Speech is explicitly local (`tts-provider: say`). GSAP is copied into the project rather than fetched from a CDN. Once installed, the composition requires no cloud service or API key. HyperFrames CLI scripts disable its usage telemetry. The `undici` override patches advisories in the CLI's pinned transitive dependency; installation audit reports zero vulnerabilities.
+Speech uses Voxtral (`tts-provider: mistral`, voice `gb_jane_neutral`) at 1.15× speed; narration text is sent to Mistral's API. Set `tts-provider: say` for local macOS speech instead. GSAP is copied into the project rather than fetched from a CDN. The generated composition needs no cloud service or API key for playback. HyperFrames CLI scripts disable its usage telemetry. The `undici` override patches advisories in the CLI's pinned transitive dependency; installation audit reports zero vulnerabilities.
 
 ## What this proves
 
-The 24.07-second draft renders 722 actual animation frames at 1280×720/30fps, rather than adding camera motion to six screenshots. A local render took about 18 seconds on this machine; that is not a benchmark guarantee.
+The Voxtral showcase renders 25.83 seconds at 1280×720/30fps, rather than adding camera motion to six screenshots. The earlier local-voice draft ran 24.07 seconds. Speech changes retime the same scene.
 
 Tests check measured timing, media-path validation, caption escaping, motion inside a beat, object identity, and direct/backward seeking through crash and recovery. HyperFrames lint/check report no errors or warnings, including layout, contrast and audio. Existing video/rehearsal/loop tests remain unchanged and pass.
 
