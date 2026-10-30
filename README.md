@@ -210,10 +210,19 @@ when no key is set — see Speech providers). Review factual claims, visual fit,
 sharing, and remember the default voice sends narration text to Mistral. Source research and script writing are author/agent tasks, not automatic behavior of this CLI. This
 first version does not support music, sound effects, avatars, or precise cue timing.
 
+## Review and revise
+
+Ask the explainer skill to review code or critique a video, for example:
+“Review `runs/<run>` for entertainment and pacing,” or “Create a video, review it, then revise once.”
+The [review workflow](review/review.md) returns evidence-backed findings and prioritized changes;
+video notes use timestamps and scene/beat IDs where available. It distinguishes audiovisual inspection from
+transcript-and-frame sampling and leaves artifacts unchanged unless a revision was requested.
+
 ## Layout
 
 - `build.mjs`: the book and walkthrough CLI.
 - `video.mjs`: the local narrated-video CLI; `examples/video/explainer.md` is the sample storyboard.
+- `review/`: the review workflow, code review guidance, and video critique lens.
 - `lib/rehearsal.mjs`, `lib/rehearsal.html`, `lib/rehearsal-player.js`: the `--preview` server and player;
   `rehearsal.test.mjs` covers it.
 - `lib/render.mjs`: Markdown, directives and the page runtime (shared by books and walkthrough cards).

@@ -1,6 +1,6 @@
 ---
 name: explainer
-description: Write explainers (design docs, API guides, system walkthroughs, investigations, call summaries, "how does X work" write-ups) as a book-style HTML page built from Markdown, with a fixed layout, typography, prose style, diagrams and animations; or an interactive walkthrough, a single HTML page in which an embedded agent tutors the reader one concept at a time; or a fast-paced narrated video from a Markdown storyboard. Use whenever the user asks for an explainer, design book, guide, long-form explanation document, walkthrough, tutorial, or a video/demo script.
+description: Write explainers (design docs, API guides, system walkthroughs, investigations, call summaries, "how does X work" write-ups) as a book-style HTML page built from Markdown, with a fixed layout, typography, prose style, diagrams and animations; or an interactive walkthrough, a single HTML page in which an embedded agent tutors the reader one concept at a time; or a fast-paced narrated video from a Markdown storyboard. Use whenever the user asks for an explainer, design book, guide, long-form explanation document, walkthrough, tutorial, or a video/demo script; or asks to review code, critique a video, or iterate on an explainer render.
 ---
 
 # Explainer
@@ -155,6 +155,13 @@ When the book teaches users to build with an API rather than explaining a design
 4. Build: `node <skill>/build.mjs book.md -o index.html`. Fix any build error (it names the directive or line).
 5. Check visually if browser tools are available: open the HTML, look at the cover and every figure for overlapping or clipped text, and click through steppers. Fix layouts in the DSL (fewer boxes per row, shorter labels, reorder rows).
 6. Publish or share only if the user asks.
+
+## Review
+
+For code review, video/storyboard critique, or a requested create → review → revise loop, read
+[review/review.md](review/review.md) and follow its process and report format instead of the creation process above.
+Video feedback covers clarity, entertainment, pacing, and audiovisual execution, with timestamped changes for the
+next revision. Review-only requests leave the subject unchanged; revision loops run only for the requested passes.
 
 ## Video scripts
 
