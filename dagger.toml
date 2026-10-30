@@ -1,0 +1,7 @@
+# Dagger workspace configuration
+# Install modules with: dagger install <module>
+# Example:
+#   dagger install github.com/dagger/dagger/modules/wolfi
+
+[modules.vitest]
+source = "github.com/dagger/vitest"
