@@ -13,7 +13,7 @@ A [pi](https://github.com/earendil-works/pi) skill that turns Markdown into two 
 ## Install
 
 ```sh
-git clone https://github.com/badlogic/explainer ~/.pi/agent/skills/explainer
+git clone https://github.com/rikurb8/explainer ~/.pi/agent/skills/explainer
 cd ~/.pi/agent/skills/explainer && npm install --ignore-scripts
 ```
 
